@@ -1,6 +1,9 @@
-# TODO: re-evaluate class name
-class Font(object):
-    _ANSI_ESCAPE_CODES = {
+# TODO: doc string
+
+from platform import system as get_os
+
+class Ansi(object):
+    ESCAPE_CODES = {
         'reset'                     : 0,
         'bold'                      : 1,
         'faint'                     : 2,
@@ -82,14 +85,53 @@ class Font(object):
         'bg_bright_white'           : 107
     }
 
-    # TODO: rename method
-    @staticmethod
-    def font(*args) -> str:
-        ESCAPE_FORMAT = "\033[§m"
-        ansi_code = ""
-        # TODO: fill in function
-        return ESCAPE_FORMAT.replace("§", ansi_code if ansi_code != "" else "0")
+    COLOR_MODE = {
+        1 : "5",
+        3 : "2"
+    }
 
+
+    @staticmethod
+    def _canonize_color(color : int) -> int:
+        return color if color in range(0, 256) else (0 if color < 0 else 255)
+
+
+    @staticmethod
+    def escape(*args) -> str:
+        if get_os() not in ["Linux", "Darwin"]:
+            return ""
+
+        ESCAPE_FORMAT = "\033[§m"
+        SEPARATOR     = ';'
+        _catch        = False
+        color         = []
+        param         = []
+
+        for arg in args:
+            if arg in ['fg', 'bg']:
+                if _catch:
+                    param.append(Ansi.COLOR_MODE[len(color)])
+                    param += color
+                    color = []
+                param.append(str(Ansi.ESCAPE_CODES[str(arg)]))
+                _catch = True
+            else:
+                if _catch and str(arg).isdecimal():
+                    color.append(str(Ansi._canonize_color(int(arg))))
+                    continue
+                elif _catch:
+                    _catch = False
+                    param.append(Ansi.COLOR_MODE[len(color)])
+                    param += color
+                    color = []
+                param.append(str(Ansi.ESCAPE_CODES[str(arg)]))
+
+        if color != []:
+            param.append(Ansi.COLOR_MODE[len(color)])
+            param += color
+
+        ansi_code = SEPARATOR.join(param)
+        return ESCAPE_FORMAT.replace("§", ansi_code if ansi_code != "" else "0")
 
 
 if __name__ == "__main__":
