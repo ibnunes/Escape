@@ -2,26 +2,68 @@
 
 This project aims to provide small, easily mantainable "libraries" allowing developers to add some flair to their CLI apps through ANSI Escape Codes (AEC) without the need to actually manage those codes.
 
-Supported languages:
-  * `sh` &mdash; command language:
-    * `zsh`
+## Languages
+### Supported
+
+  * sh &mdash; command language:
+    * zsh
   * Python 3
 
+### To be added (wishlist)
+
+  * Bash
+  * C
+  * C++
+  * C#
+  * Delphi (Object Pascal)
+  * Java
+  * Kotlin
+  * OCaml
+
+## The codes
+
+In [AEC.md](AEC.md).
 
 
+## Examples
 
-# License
+### zsh
 
-The GNU General Public License version 2.
+```sh
+echo "$(font bold fg_red)Fatality!$(font reset)"
+```
+
+To be used, it is recommended to place [`escape.zsh`](sh/zsh/escape.zsh) in a folder like `~/.zshrc.d` and add the following to `.zshrc`:
+
+```sh
+source ~/.zshrc.d/escape.zsh
+```
+
+*Escape* is used in the [*zshrc* project](https://github.com/ibnunes/zshrc), being directly provided by it. It can be out-of-date, however, since the two projects are independent and thus have different workflows.
 
 
-# Contribute
+### Python 3
 
-This section will be expanded as needed, but there is a rule I intend to mantain:
+```python
+from Ansi import escape as font
 
-  1. All AEC descriptors must be the same across supported languages as long as it is feasible or possible.
-  2. Each supported language must have at least one dedicated branch.
-  3. The branch `dev` is to have the current status of all supported languages.
-  4. Changes to be merged to `main` are to be done exclusively through Pull Requests.
+print( f"{font('bold', 'fg_red')}Fatality!{font('reset')}" )
+```
 
 
+## License
+
+The software is provided without warranty and as is under the [GNU General Public License version 2](LICENSE.md).
+
+
+## Contribute
+
+**Notice!** This section will be expanded as needed.
+
+These are the current guidelines for contribution:
+
+  1. Contributions shall be provided via forks.
+  2. All [AEC descriptors](AEC.md) must be the same across supported languages as long as it is feasible or possible.
+  3. Each supported language must have at least one dedicated branch.
+  4. The branch `dev` is to have the current status of all supported languages.
+  5. Changes to be merged to `main` are to be done exclusively through Pull Requests.
