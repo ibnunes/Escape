@@ -86,7 +86,6 @@ function font() {
     local PARAM=()
     local CATCH=false
     local COLOR=()
-    local STOP=false
 
     declare -A LEN2ANSI
     LEN2ANSI=([1]="5" [3]="2")
@@ -94,6 +93,10 @@ function font() {
     for arg in $@; do
         case $arg in
             ("fg"|"bg")
+                if $CATCH; then
+                    PARAM+=($LEN2ANSI[${#COLOR[@]}] $COLOR)
+                    COLOR=()
+                fi
                 PARAM+=($FONT[$arg])
                 CATCH=true
                 ;;
@@ -103,6 +106,7 @@ function font() {
                 elif $CATCH; then
                     CATCH=false
                     PARAM+=($LEN2ANSI[${#COLOR[@]}] $COLOR)
+                    COLOR=()
                     PARAM+=($FONT[$arg])
                 else
                     PARAM+=($FONT[$arg])
@@ -110,6 +114,7 @@ function font() {
                 ;;
         esac
     done
+
     if ! [ -z "$COLOR" ]; then
         PARAM+=($LEN2ANSI[${#COLOR[@]}] $COLOR)
     fi
