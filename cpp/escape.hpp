@@ -8,7 +8,18 @@
 
 using namespace std;
 
+#if defined __GNUC__
+# define LIKELY(EXPR)  __builtin_expect(!!(EXPR), 1)
+#else
+# define LIKELY(EXPR)  (!!(EXPR))
+#endif
 
+#if defined NDEBUG
+# define X_ASSERT(CHECK) void(0)
+#else
+# define X_ASSERT(CHECK) \
+    ( LIKELY(CHECK) ?  void(0) : []{assert(!#CHECK);}() )
+#endif
 
 
 template<int N>
@@ -16,7 +27,59 @@ class string_literal {
     const char (&_lit)[N + 1];
 public:
     constexpr string_literal(const char (&lit)[N + 1]) : _lit(lit) {}
+    constexpr char operator[](int i) const {
+        return X_ASSERT(i >= 0 && i < N), _lit[i];
+    }
+    constexpr char* const c_str() { return (char*) _lit; }
 };
+
+
+template <int N_PLUS_1>
+constexpr auto literal(const char (&lit)[N_PLUS_1])
+    -> string_literal<N_PLUS_1 - 1>
+{
+    return string_literal<N_PLUS_1 - 1>(lit);
+}
+
+
+template <int N>
+class array_string {
+    char _array[N + 1];
+
+public:
+    template <int N1> requires (N1 <= N)
+    constexpr array_string(const string_literal<N1>&     s1,
+                           const string_literal<N - N1>& s2)
+    {
+        for (int i = 0; i < N1; ++i)
+            _array[i] = s1[i];
+        for (int i = 0; i < N - N1; ++i)
+            _array[N1 + i] = s2[i];
+        _array[N] = '\0';
+    }
+
+    constexpr char operator[](int i) const {
+        return X_ASSERT(i >= 0 && i < N), _array[i];
+    }
+
+    constexpr std::size_t size() const { return N; }
+
+    constexpr string_literal<N> as_literal() { return string_literal<N>(_array); }
+    constexpr char* const c_str() { return (char*) _array; }
+};
+
+template <int N1, int N2>
+constexpr auto operator+(const string_literal<N1>& s1,
+                         const string_literal<N2>& s2)
+    -> array_string<N1 + N2>
+{
+    return array_string<N1 + N2>(s1, s2);
+}
+
+template <int... N>
+constexpr auto strlit_concat(string_literal<N> const&... args) {
+    return (... + args);
+}
 
 
 
@@ -63,7 +126,7 @@ public:
     static constexpr string_literal<2> FG_MAGENTA                = "35";
     static constexpr string_literal<2> FG_CYAN                   = "36";
     static constexpr string_literal<2> FG_WHITE                  = "37";
-    static constexpr string_literal<2> FG1                       = "38";
+    static constexpr string_literal<2> FG                        = "38";
     static constexpr string_literal<2> FG_DEFAULT                = "39";
     static constexpr string_literal<2> BG_BLACK                  = "40";
     static constexpr string_literal<2> BG_RED                    = "41";
@@ -73,7 +136,7 @@ public:
     static constexpr string_literal<2> BG_MAGENTA                = "45";
     static constexpr string_literal<2> BG_CYAN                   = "46";
     static constexpr string_literal<2> BG_WHITE                  = "47";
-    static constexpr string_literal<2> BG1                       = "48";
+    static constexpr string_literal<2> BG                        = "48";
     static constexpr string_literal<2> BG_DEFAULT                = "49";
     static constexpr string_literal<2> FRAME                     = "51";
     static constexpr string_literal<2> ENCIRCLE                  = "52";
@@ -104,24 +167,11 @@ public:
     static constexpr string_literal<3> BG_BRIGHT_CYAN            = "106";
     static constexpr string_literal<3> BG_BRIGHT_WHITE           = "107";
 
-    static constexpr string_view COLOR(string_view code, int color) {
-        return "";
-    }
 
-    template<typename T, typename... Ts>
-    constexpr auto font(T const& value, Ts const&... args) {
-        if constexpr (sizeof...(args) == 0u) // Single argument case!
-            return value;
-
-
-    }
-
-    template<int... I>
-    constexpr string_view ansify(string msg) {
-
-
-        return "";
-    }
+    // template<int I, string_literal<I>... T>
+    // static constexpr string_view ansify(string msg) {
+    //     return "";
+    // }
 };
 
 
