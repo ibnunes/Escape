@@ -67,3 +67,23 @@ These are the current guidelines for contribution:
   3. Each supported language must have at least one dedicated branch.
   4. The branch `dev` is to have the current status of all supported languages.
   5. Changes to be merged to `main` are to be done exclusively through Pull Requests.
+
+
+## Examples
+
+### C
+
+```c
+#define __FONT_AS_ANSI_ESCAPE__
+#include "escape.h"
+#include <stdio.h>
+
+int main(void) {
+    printf("%s%s%s\n",
+        font(BOLD, FG_RED),
+        "Fatality!",
+        nofont
+    );
+    return 0;
+}
+```
