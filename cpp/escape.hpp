@@ -8,23 +8,28 @@
 
 using namespace std;
 
-namespace detail
-{
-    template<unsigned... digits>
-    struct to_chars { static const char value[]; };
+// Random example
+// template <template <typename> class X> struct Zip;
 
-    template<unsigned... digits>
-    constexpr char to_chars<digits...>::value[] = {('0' + digits)..., 0};
 
-    template<unsigned rem, unsigned... digits>
-    struct explode : explode<rem / 10, rem % 10, digits...> {};
 
-    template<unsigned... digits>
-    struct explode<0, digits...> : to_chars<digits...> {};
-}
-
-template<unsigned num>
-struct string_of_int : detail::explode<num> {};
+// namespace detail
+// {
+//     template<unsigned... digits>
+//     struct to_chars { static const char value[]; };
+//
+//     template<unsigned... digits>
+//     constexpr char to_chars<digits...>::value[] = {('0' + digits)..., 0};
+//
+//     template<unsigned rem, unsigned... digits>
+//     struct explode : explode<rem / 10, rem % 10, digits...> {};
+//
+//     template<unsigned... digits>
+//     struct explode<0, digits...> : to_chars<digits...> {};
+// }
+//
+// template<unsigned num>
+// struct string_of_int : detail::explode<num> {};
 
 class Ansi {
 private:
@@ -113,29 +118,9 @@ public:
     static constexpr int BG_BRIGHT_CYAN            = 106;
     static constexpr int BG_BRIGHT_WHITE           = 107;
 
-
-    static string ansi_codify(int code) {
-        string ansi_code(Ansi::ESCAPECODE_BEGIN);
-        ansi_code.append(to_string(code));
-        return ansi_code.append(Ansi::ESCAPECODE_END);
-    }
-
-    static string ansi_codify(vector<int> codes) {
-        string ansi_code(Ansi::ESCAPECODE_BEGIN);
-        for (auto code : codes) {
-            ansi_code.append(to_string(code));
-            ansi_code.append(Ansi::SEPARATOR);
-        }
-        ansi_code.pop_back();
-        return ansi_code.append(Ansi::ESCAPECODE_END);
-    }
-
-    template<int... codes>
-    static string ansify(string msg) {
-        string ansified_msg(Ansi::ansi_codify(vector<int> {codes...}));
-        ansified_msg.append(msg);
-        return ansified_msg.append(Ansi::ansi_codify(Ansi::RESET));
-    }
+    static string ansi_codify(int);
+    static string ansi_codify(vector<int>);
+    template<int... codes> static string ansify(string);
 };
 
 
