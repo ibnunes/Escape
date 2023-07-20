@@ -8,6 +8,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
   * sh &mdash; command language:
     * zsh
   * Python 3
+  * C
 
 ### To be added (wishlist)
 
@@ -45,9 +46,27 @@ source ~/.zshrc.d/escape.zsh
 ### Python 3
 
 ```python
-from Ansi import escape as font
+from escape import Ansi.escape as font
 
 print( f"{font('bold', 'fg_red')}Fatality!{font('reset')}" )
+```
+
+
+### C
+
+```c
+#define __FONT_AS_ANSI_ESCAPE__
+#include "escape.h"
+#include <stdio.h>
+
+int main(void) {
+    printf("%s%s%s\n",
+        font(BOLD, FG_RED),
+        "Fatality!",
+        nofont
+    );
+    return 0;
+}
 ```
 
 
@@ -67,23 +86,3 @@ These are the current guidelines for contribution:
   3. Each supported language must have at least one dedicated branch.
   4. The branch `dev` is to have the current status of all supported languages.
   5. Changes to be merged to `main` are to be done exclusively through Pull Requests.
-
-
-## Examples
-
-### C
-
-```c
-#define __FONT_AS_ANSI_ESCAPE__
-#include "escape.h"
-#include <stdio.h>
-
-int main(void) {
-    printf("%s%s%s\n",
-        font(BOLD, FG_RED),
-        "Fatality!",
-        nofont
-    );
-    return 0;
-}
-```
