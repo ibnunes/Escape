@@ -25,6 +25,7 @@ const char *_ansi_escape(size_t count, aec_list_t codes) {
     static char ansi_code[BUFFER_SIZE] = "";
     for (size_t i = 0; i < count; i++)
         append(ansi_code, codes[i]);
+    ansi_code[strlen(ansi_code) - 1] = '\0';
     ansify(ansi_code);
     return ansi_code;
 }
