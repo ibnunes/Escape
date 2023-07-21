@@ -28,6 +28,9 @@ string Ansi::ansify(string msg) {
 
 int main(void) {
     cout << Ansi::ansify<Ansi::BOLD, Ansi::FG_RED>("Fatality!") << endl;
-    //cout << FG<69>::color << endl;
+    // cout << to_string_t<420, 6, true>("fooooo") + to_string_t<420, 3, true>("bar") << endl;
+    // cout << to_string_t<420, 4, true>("hey!") << endl;
+    // cout << FG<69>() << endl;
+    // cout << AnsiCode<420> << endl;
     return 0;
 }
