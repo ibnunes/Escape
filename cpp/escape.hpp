@@ -10,361 +10,184 @@
 using namespace std;
 
 
+// Reverse wrapper, thanks to:
+// https://stackoverflow.com/a/28139075/20566555
+namespace AnsiUtils {
+    template <typename T>
+    struct reversion_wrapper { T& iterable; };
 
-template<int N>
-class to_string_t {
+    template <typename T>
+    constexpr auto begin (reversion_wrapper<T> w) { return std::rbegin(w.iterable); }
 
-    constexpr static auto buflen() noexcept {
-        unsigned int len = N > 0 ? 1 : 2;
-        for (auto n = N; n; len++, n /= 10);
-        return len;
-    }
+    template <typename T>
+    constexpr auto end (reversion_wrapper<T> w) { return std::rend(w.iterable); }
 
-    char buf[buflen()] = {};
-
-public:
-    constexpr to_string_t() noexcept {
-        auto ptr = buf + buflen();
-        *--ptr = '\0';
-        if (N != 0) {
-            for (auto n = N; n; n /= 10)
-                *--ptr = "0123456789"[(N < 0 ? -1 : 1) * (n % 10)];
-            if (N < 0)
-                *--ptr = '-';
-        } else {
-            buf[0] = '0';
-        }
-    }
-
-    constexpr operator const char *() const { return buf; }
-};
-
-struct RefImpl {};
-struct ArrayImpl {};
-
-template <int N, typename Impl>
-class sstring { };
-
-template<int N>
-class sstring<N, RefImpl> {
-    const char (&_lit)[N + 1];
-public:
-    constexpr sstring(const char (&lit)[N + 1]) : _lit(lit) {}
-    constexpr char operator[](int i) const requires (i >= 0 && i < N) { return _lit[i]; }
-};
-
-
-
-template<std::intmax_t N>
-constexpr to_string_t<N> stringify;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ----------------------------------------------------------------------
-
-/*
-struct RefImpl {};
-struct ArrayImpl {};
-
-template <int N, typename Impl>
-class sstring {
-    static_assert(N != N, "***");
-};
-
-template<int N>
-class sstring<N, RefImpl> {
-    const char (&_lit)[N + 1];
-public:
-    constexpr sstring(const char (&lit)[N + 1])
-        //requires (lit[N] == '\0')
-        : _lit(lit) {}
-    constexpr char operator[](int i) const requires (i >= 0 && i < N) { return _lit[i]; }
-};
-
-template<int N>
-class sstring<N, ArrayImpl> {
-    char _array[N + 1];
-public:
-    template<int N1> requires (N1 <= N)
-    constexpr sstring(const sstring<N1, RefImpl>&     s1,
-                      const sstring<N - N1, RefImpl>& s2)
-    {
-        for (int i = 0; i < N1; ++i)
-            _array[i] = s1[i];
-        for (int i = 0; i < N - N1; ++i)
-            _array[N1 + i] = s2[i];
-        _array[N] = '\0';
-    }
-    constexpr char operator[](int i) const requires (i >= 0 && i < N) { return _array[i]; }
-    constexpr std::size_t size() const { return N; }
-};
-
-template <int N_PLUS_1>
-sstring(const char (&lit)[N_PLUS_1])
-    -> sstring<N_PLUS_1 - 1, RefImpl>;
-
-template<int N> using array_string     = sstring<N, ArrayImpl>;
-template<int N> using string_literal   = sstring<N, RefImpl>;
-
-template<int N_PLUS_1>
-constexpr auto literal(const char (&lit)[N_PLUS_1])
-    -> string_literal<N_PLUS_1 - 1>
-{
-    return string_literal<N_PLUS_1 - 1>(lit);
+    template <typename T>
+    constexpr reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
 }
 
-template<int N1, int N2>
-constexpr auto operator+(const string_literal<N1>& s1,
-                         const string_literal<N2>& s2)
-    -> array_string<N1 + N2>
-{
-    return array_string<N1 + N2>(s1, s2);
-}
+// Compile-time int to string, adapted from:
+// https://stackoverflow.com/a/62596471/20566555
 
-template<std::intmax_t N>
-class to_string_t {
-
+template<unsigned... N>
+class Stringify {
     constexpr static auto buflen() noexcept {
-        unsigned int len = N > 0 ? 1 : 2;
-        for (auto n = N; n; len++, n /= 10);
-        return len;
+        unsigned int len = 0;
+        unsigned int add = 0;
+        auto f = [&len, &add](const vector<unsigned> vec) {
+            for (auto v : vec) {
+                if (v == 0) add++;
+                len++;
+                for (auto n = v; n; len++, n /= 10);
+            }
+        };
+        f(vector<unsigned>{N...});
+        return len + add;
     }
-
     char buf[buflen()] = {};
-
 public:
-    constexpr to_string_t() noexcept {
+    constexpr Stringify() noexcept {
         auto ptr = buf + buflen();
-        *--ptr = '\0';
-        if (N != 0) {
-            for (auto n = N; n; n /= 10)
-                *--ptr = "0123456789"[(N < 0 ? -1 : 1) * (n % 10)];
-            if (N < 0)
-                *--ptr = '-';
-        } else {
-            buf[0] = '0';
-        }
+        auto f = [&ptr](const vector<unsigned> vec) {
+            for (auto v : AnsiUtils::reverse(vec)) {
+                *--ptr = ';';
+                if (v != 0) {
+                    for (auto n = v; n; n /= 10)
+                        *--ptr = "0123456789"[(v < 0 ? -1 : 1) * (n % 10)];
+                } else {
+                    *--ptr = '0';
+                }
+            }
+        };
+        f(vector<unsigned>{N...});
+        *(buf + buflen() - 1) = '\0';
     }
-
     constexpr operator const char *() const { return buf; }
+    constexpr const char* c_str() const { return buf; }
+    constexpr const char at(int i) const { return buf[i]; }
+    constexpr auto size() const { return buflen(); }
 };
 
-template<std::intmax_t N>
-constexpr to_string_t<N> string_of_int;
+template<unsigned code>
+using AnsiCode = Stringify<code>;
 
-template<const char* code>
-constexpr sstring AnsiCode = code;
-*/
+template<unsigned code, unsigned color>
+using AnsiColorStd = Stringify<code, 5, color>;
 
-// ----------------------------------------------------------------------
+template<unsigned code, unsigned r, unsigned g, unsigned b>
+using AnsiColorRGB = Stringify<code, 2, r, g, b>;
 
-/*
-template<std::intmax_t N, std::intmax_t C = 0, bool shownum = true>
-class to_string_t {
+struct FG {
+    template<unsigned color> static constexpr AnsiColorStd<38, color> std;
+    template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<38, r, g, b> rgb;
+};
 
-    constexpr static auto buflen() noexcept {
-        unsigned int len = !shownum ? 0 : (N > 0 ? 1 : 2);
-        for (auto n = !shownum ? 0 : N; n; len++, n /= 10);
-        return len + C + (!shownum ? 1 : 0);
-    }
+struct BG {
+    template<unsigned color> static constexpr AnsiColorStd<48, color> std;
+    template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<48, r, g, b> rgb;
+};
 
-    char buf[buflen()] = {};
-
+template<Stringify... S>
+class Codify {
+    static constexpr int offset = 6;
+    static constexpr int size = Stringify<S...>().size();
+    const char code[size] = Stringify<S...>().c_str();
+    char buf[size + offset] = {};
 public:
-    constexpr to_string_t(const char (&cc)[C+1] = "") noexcept {
-        auto ptr = buf + buflen();
+    constexpr Codify() noexcept {
+        auto ptr = buf + size + offset;
         *--ptr = '\0';
-
-        for (auto c = C; c; c--)
-            *--ptr = cc[c-1];
-
-        if (N != 0) {
-            for (auto n = N; n; n /= 10)
-                *--ptr = "0123456789"[(N < 0 ? -1 : 1) * (n % 10)];
-            if (N < 0)
-                *--ptr = '-';
-        } else {
-            buf[0] = '0';
-        }
+        for (auto n = size; n; n--)
+            *--ptr = code[size-1];
     }
-
     constexpr operator const char *() const { return buf; }
-    constexpr const char* c_str() { return buf; }
-    constexpr const char at(int i) { return buf[i]; }
-    constexpr const int size() { return buflen() - 1; }
+    constexpr const char* c_str() const { return buf; }
 };
-
-
-template<std::intmax_t N1, std::intmax_t N2, std::intmax_t C1, std::intmax_t C2, bool B1, bool B2>
-constexpr auto operator+(to_string_t<N1, C1, B1> a, to_string_t<N2, C2, B2> b)
-    //-> to_string_t<N1+N2, C1 + C2, B1||B2>
-{
-    constexpr auto buflen = a.size() + b.size() + 1;
-    char buf[buflen] = {};
-    auto ptr = buf + buflen;
-    *--ptr = '\0';
-    for (auto n = b.size(); n; n--)
-        *--ptr = b.at(n-1);
-    for (auto n = a.size(); n; n--)
-        *--ptr = a.at(n-1);
-    return to_string_t<N1, buflen - 1, false>( buf );
-};
-
-template<std::intmax_t N>
-constexpr to_string_t<N> string_of_int;
-
-constexpr int size(const char *s) {
-    int c = 0;
-    for (; *s != '\0'; s++, c++);
-    return c;
-}
-
-template<int code, std::intmax_t N = 0>
-class AnsiCode : public to_string_t<code, N> {
-public:
-    constexpr AnsiCode(const char (&s)[N+1] = "") noexcept : to_string_t<code, N>(s) {}
-};
-
-template<int code, int color>
-class AnsiColorStd : public AnsiCode<code, to_string_t<color>().size() + 3> {
-public:
-    constexpr AnsiColorStd() noexcept : AnsiCode<code, to_string_t<color>().size() + 3>(
-        to_string_t<0, 3, false>(";5;") +
-        to_string_t<color>()
-    ) {}
-};
-
-template<int code, int r, int g, int b>
-class AnsiColorRGB : public AnsiCode<code> {
-public:
-    constexpr AnsiColorRGB() noexcept : to_string_t<code>(
-        to_string_t<0, 3, false>(";2;") +
-        to_string_t<r>()                +
-        to_string_t<0, 1, false>(";")   +
-        to_string_t<g>()                +
-        to_string_t<0, 1, false>(";")   +
-        to_string_t<b>()
-    ) {}
-};
-
-template<int... Is>
-class FG;
-
-template<int color>
-class FG<color> : public AnsiColorStd<38, color> {};
-
-template<int r, int g, int b>
-class FG<r, g, b> : public AnsiColorRGB<38, r, g, b> {};
-*/
-
-// ----------------------------------------------------------------------
-
-
 
 
 class Ansi {
-private:
-    static constexpr string_view SEPARATOR          = ";";
-    static constexpr string_view ESCAPECODE_BEGIN   = "\033[";
-    static constexpr string_view ESCAPECODE_END     = "m";
-
 public:
-    static constexpr int RESET                     = 0;
-    static constexpr int BOLD                      = 1;
-    static constexpr int FAINT                     = 2;
-    static constexpr int ITALIC                    = 3;
-    static constexpr int UNDERLINE                 = 4;
-    static constexpr int BLINK_SLOW                = 5;
-    static constexpr int BLINK_RAPID               = 6;
-    static constexpr int REVERSE                   = 7;
-    static constexpr int CONCEAL                   = 8;
-    static constexpr int CROSSOUT                  = 9;
-    static constexpr int FONT_PRIMARY              = 10;
-    static constexpr int FONT_ALTERNATE_1          = 11;
-    static constexpr int FONT_ALTERNATE_2          = 12;
-    static constexpr int FONT_ALTERNATE_3          = 13;
-    static constexpr int FONT_ALTERNATE_4          = 14;
-    static constexpr int FONT_ALTERNATE_5          = 15;
-    static constexpr int FONT_ALTERNATE_6          = 16;
-    static constexpr int FONT_ALTERNATE_7          = 17;
-    static constexpr int FONT_ALTERNATE_8          = 18;
-    static constexpr int FONT_ALTERNATE_9          = 19;
-    static constexpr int FRAKTUR                   = 20;
-    static constexpr int BOLD_OFF                  = 21;
-    static constexpr int UNDERLINE_DOUBLE          = 21;
-    static constexpr int COLOR_NORMAL              = 22;
-    static constexpr int ITALIC_OFF                = 23;
-    static constexpr int FRAKTUR_OFF               = 23;
-    static constexpr int UNDERLINE_OFF             = 24;
-    static constexpr int BLINK_OFF                 = 25;
-    static constexpr int INVERSE_OFF               = 27;
-    static constexpr int REVEAL                    = 28;
-    static constexpr int CROSSOUT_OFF              = 29;
-    static constexpr int FG_BLACK                  = 30;
-    static constexpr int FG_RED                    = 31;
-    static constexpr int FG_GREEN                  = 32;
-    static constexpr int FG_YELLOW                 = 33;
-    static constexpr int FG_BLUE                   = 34;
-    static constexpr int FG_MAGENTA                = 35;
-    static constexpr int FG_CYAN                   = 36;
-    static constexpr int FG_WHITE                  = 37;
-    //static constexpr int FG                        = "38";
-    static constexpr int FG_DEFAULT                = 39;
-    static constexpr int BG_BLACK                  = 40;
-    static constexpr int BG_RED                    = 41;
-    static constexpr int BG_GREEN                  = 42;
-    static constexpr int BG_YELLOW                 = 43;
-    static constexpr int BG_BLUE                   = 44;
-    static constexpr int BG_MAGENTA                = 45;
-    static constexpr int BG_CYAN                   = 46;
-    static constexpr int BG_WHITE                  = 47;
-    //static constexpr int BG                        = "48";
-    static constexpr int BG_DEFAULT                = 49;
-    static constexpr int FRAME                     = 51;
-    static constexpr int ENCIRCLE                  = 52;
-    static constexpr int OVERLINE                  = 53;
-    static constexpr int FRAME_OFF                 = 54;
-    static constexpr int ENCIRCLE_OFF              = 54;
-    static constexpr int OVERLINE_OFF              = 55;
-    static constexpr int IDEOGRAM_UNDERLINE        = 60;
-    static constexpr int IDEOGRAM_UNDERLINE_DOUBLE = 61;
-    static constexpr int IDEOGRAM_OVERLINE         = 62;
-    static constexpr int IDEOGRAM_OVERLINE_DOUBLE  = 63;
-    static constexpr int IDEOGRAM_STRESSMARK       = 64;
-    static constexpr int IDEOGRAM_OFF              = 65;
-    static constexpr int FG_BRIGHT_BLACK           = 90;
-    static constexpr int FG_BRIGHT_RED             = 91;
-    static constexpr int FG_BRIGHT_GREEN           = 92;
-    static constexpr int FG_BRIGHT_YELLOW          = 93;
-    static constexpr int FG_BRIGHT_BLUE            = 94;
-    static constexpr int FG_BRIGHT_MAGENTA         = 95;
-    static constexpr int FG_BRIGHT_CYAN            = 96;
-    static constexpr int FG_BRIGHT_WHITE           = 97;
-    static constexpr int BG_BRIGHT_BLACK           = 100;
-    static constexpr int BG_BRIGHT_RED             = 101;
-    static constexpr int BG_BRIGHT_GREEN           = 102;
-    static constexpr int BG_BRIGHT_YELLOW          = 103;
-    static constexpr int BG_BRIGHT_BLUE            = 104;
-    static constexpr int BG_BRIGHT_MAGENTA         = 105;
-    static constexpr int BG_BRIGHT_CYAN            = 106;
-    static constexpr int BG_BRIGHT_WHITE           = 107;
+    static constexpr AnsiCode<0>     RESET                      ;
+    static constexpr AnsiCode<1>     BOLD                       ;
+    static constexpr AnsiCode<2>     FAINT                      ;
+    static constexpr AnsiCode<3>     ITALIC                     ;
+    static constexpr AnsiCode<4>     UNDERLINE                  ;
+    static constexpr AnsiCode<5>     BLINK_SLOW                 ;
+    static constexpr AnsiCode<6>     BLINK_RAPID                ;
+    static constexpr AnsiCode<7>     REVERSE                    ;
+    static constexpr AnsiCode<8>     CONCEAL                    ;
+    static constexpr AnsiCode<9>     CROSSOUT                   ;
+    static constexpr AnsiCode<10>    FONT_PRIMARY               ;
+    static constexpr AnsiCode<11>    FONT_ALTERNATE_1           ;
+    static constexpr AnsiCode<12>    FONT_ALTERNATE_2           ;
+    static constexpr AnsiCode<13>    FONT_ALTERNATE_3           ;
+    static constexpr AnsiCode<14>    FONT_ALTERNATE_4           ;
+    static constexpr AnsiCode<15>    FONT_ALTERNATE_5           ;
+    static constexpr AnsiCode<16>    FONT_ALTERNATE_6           ;
+    static constexpr AnsiCode<17>    FONT_ALTERNATE_7           ;
+    static constexpr AnsiCode<18>    FONT_ALTERNATE_8           ;
+    static constexpr AnsiCode<19>    FONT_ALTERNATE_9           ;
+    static constexpr AnsiCode<20>    FRAKTUR                    ;
+    static constexpr AnsiCode<21>    BOLD_OFF                   ;
+    static constexpr AnsiCode<21>    UNDERLINE_DOUBLE           ;
+    static constexpr AnsiCode<22>    COLOR_NORMAL               ;
+    static constexpr AnsiCode<23>    ITALIC_OFF                 ;
+    static constexpr AnsiCode<23>    FRAKTUR_OFF                ;
+    static constexpr AnsiCode<24>    UNDERLINE_OFF              ;
+    static constexpr AnsiCode<25>    BLINK_OFF                  ;
+    static constexpr AnsiCode<27>    INVERSE_OFF                ;
+    static constexpr AnsiCode<28>    REVEAL                     ;
+    static constexpr AnsiCode<29>    CROSSOUT_OFF               ;
+    static constexpr AnsiCode<30>    FG_BLACK                   ;
+    static constexpr AnsiCode<31>    FG_RED                     ;
+    static constexpr AnsiCode<32>    FG_GREEN                   ;
+    static constexpr AnsiCode<33>    FG_YELLOW                  ;
+    static constexpr AnsiCode<34>    FG_BLUE                    ;
+    static constexpr AnsiCode<35>    FG_MAGENTA                 ;
+    static constexpr AnsiCode<36>    FG_CYAN                    ;
+    static constexpr AnsiCode<37>    FG_WHITE                   ;
+    static constexpr AnsiCode<39>    FG_DEFAULT                 ;
+    static constexpr AnsiCode<40>    BG_BLACK                   ;
+    static constexpr AnsiCode<41>    BG_RED                     ;
+    static constexpr AnsiCode<42>    BG_GREEN                   ;
+    static constexpr AnsiCode<43>    BG_YELLOW                  ;
+    static constexpr AnsiCode<44>    BG_BLUE                    ;
+    static constexpr AnsiCode<45>    BG_MAGENTA                 ;
+    static constexpr AnsiCode<46>    BG_CYAN                    ;
+    static constexpr AnsiCode<47>    BG_WHITE                   ;
+    static constexpr AnsiCode<49>    BG_DEFAULT                 ;
+    static constexpr AnsiCode<51>    FRAME                      ;
+    static constexpr AnsiCode<52>    ENCIRCLE                   ;
+    static constexpr AnsiCode<53>    OVERLINE                   ;
+    static constexpr AnsiCode<54>    FRAME_OFF                  ;
+    static constexpr AnsiCode<54>    ENCIRCLE_OFF               ;
+    static constexpr AnsiCode<55>    OVERLINE_OFF               ;
+    static constexpr AnsiCode<60>    IDEOGRAM_UNDERLINE         ;
+    static constexpr AnsiCode<61>    IDEOGRAM_UNDERLINE_DOUBLE  ;
+    static constexpr AnsiCode<62>    IDEOGRAM_OVERLINE          ;
+    static constexpr AnsiCode<63>    IDEOGRAM_OVERLINE_DOUBLE   ;
+    static constexpr AnsiCode<64>    IDEOGRAM_STRESSMARK        ;
+    static constexpr AnsiCode<65>    IDEOGRAM_OFF               ;
+    static constexpr AnsiCode<90>    FG_BRIGHT_BLACK            ;
+    static constexpr AnsiCode<91>    FG_BRIGHT_RED              ;
+    static constexpr AnsiCode<92>    FG_BRIGHT_GREEN            ;
+    static constexpr AnsiCode<93>    FG_BRIGHT_YELLOW           ;
+    static constexpr AnsiCode<94>    FG_BRIGHT_BLUE             ;
+    static constexpr AnsiCode<95>    FG_BRIGHT_MAGENTA          ;
+    static constexpr AnsiCode<96>    FG_BRIGHT_CYAN             ;
+    static constexpr AnsiCode<97>    FG_BRIGHT_WHITE            ;
+    static constexpr AnsiCode<100>   BG_BRIGHT_BLACK            ;
+    static constexpr AnsiCode<101>   BG_BRIGHT_RED              ;
+    static constexpr AnsiCode<102>   BG_BRIGHT_GREEN            ;
+    static constexpr AnsiCode<103>   BG_BRIGHT_YELLOW           ;
+    static constexpr AnsiCode<104>   BG_BRIGHT_BLUE             ;
+    static constexpr AnsiCode<105>   BG_BRIGHT_MAGENTA          ;
+    static constexpr AnsiCode<106>   BG_BRIGHT_CYAN             ;
+    static constexpr AnsiCode<107>   BG_BRIGHT_WHITE            ;
 
-    static string ansi_codify(int);
-    static string ansi_codify(vector<int>);
-    template<int... codes> static string ansify(string);
+
+    template<Stringify... codes> static constexpr string ansify(string);
 };
-
 
 
 #endif

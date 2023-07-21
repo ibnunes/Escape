@@ -70,6 +70,12 @@ int main(void) {
 ```
 
 
+### C++
+
+**[WIP]** It does not work bellow C++20.
+
+
+
 ## License
 
 The software is provided without warranty and as is under the [GNU General Public License version 2](LICENSE.md).
