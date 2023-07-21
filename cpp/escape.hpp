@@ -77,16 +77,6 @@ using AnsiColorStd = Stringify<code, 5, color>;
 template<unsigned code, unsigned r, unsigned g, unsigned b>
 using AnsiColorRGB = Stringify<code, 2, r, g, b>;
 
-struct FG {
-    template<unsigned color> static constexpr AnsiColorStd<38, color> std;
-    template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<38, r, g, b> rgb;
-};
-
-struct BG {
-    template<unsigned color> static constexpr AnsiColorStd<48, color> std;
-    template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<48, r, g, b> rgb;
-};
-
 template<Stringify... S>
 class Codify {
     static constexpr int offset = 6;
@@ -185,6 +175,15 @@ public:
     static constexpr AnsiCode<106>   BG_BRIGHT_CYAN             ;
     static constexpr AnsiCode<107>   BG_BRIGHT_WHITE            ;
 
+    struct FG {
+        template<unsigned color> static constexpr AnsiColorStd<38, color> std;
+        template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<38, r, g, b> rgb;
+    };
+
+    struct BG {
+        template<unsigned color> static constexpr AnsiColorStd<48, color> std;
+        template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<48, r, g, b> rgb;
+    };
 
     template<Stringify... codes> static constexpr string ansify(string);
 };
