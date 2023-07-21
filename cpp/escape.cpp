@@ -3,7 +3,7 @@
 
 using namespace std;
 
-template<Stringify... codes>
+template<Codes... codes>
 constexpr string Ansi::ansify(string s) {
     constexpr const char* code  = Codify<codes...>().c_str();
     constexpr const char* reset = Ansi::RESET.c_str();

@@ -77,7 +77,14 @@ using AnsiColorStd = Stringify<code, 5, color>;
 template<unsigned code, unsigned r, unsigned g, unsigned b>
 using AnsiColorRGB = Stringify<code, 2, r, g, b>;
 
-template<Stringify... S>
+
+
+
+template<typename T>
+concept Codes = std::is_same_v<T, Stringify<>>;
+
+
+template<Codes... S>
 class Codify {
     static constexpr int offset = 6;
     static constexpr int size = Stringify<S...>().size();
@@ -97,6 +104,8 @@ public:
 
 class Ansi {
 public:
+    template<Codes... Cs> static constexpr string ansify(string);
+
     static constexpr AnsiCode<0>     RESET                      ;
     static constexpr AnsiCode<1>     BOLD                       ;
     static constexpr AnsiCode<2>     FAINT                      ;
@@ -184,8 +193,6 @@ public:
         template<unsigned color> static constexpr AnsiColorStd<48, color> std;
         template<unsigned r, unsigned g, unsigned b> static constexpr AnsiColorRGB<48, r, g, b> rgb;
     };
-
-    template<Stringify... codes> static constexpr string ansify(string);
 };
 
 
