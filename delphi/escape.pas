@@ -13,174 +13,187 @@ type
             AnsiColorRGB: (r, g, b : byte);
     end;
 
-    IAnsiCode = interface
-        function SetCode(const code : byte) : IAnsiCode;
+    IAnsiCode = interface['{eeb511e3-0dbe-4fec-a72f-473f8bf8a8de}']
         function AsString : string;
         function AsByte : byte;
-    end;
-
-    IAnsiColor = interface(IAnsiCode)
-        function SetColor(const color : byte) : IAnsiColor; overload;
-        function SetColor(const r, g, b : byte) : IAnsiColor; overload;
-        function ColorMode : TAnsiColorEnum;
-        function AsColor : TAnsiColorRec;
     end;
 
     TAnsiCode = class(TInterfacedObject, IAnsiCode)
     private
         vCode   : byte;
         vString : string;
+        function WithCode(const code : byte) : IAnsiCode;
     public
-        class function New(const code : byte) : IAnsiCode;
-        function SetCode(const code : byte) : IAnsiCode;
+        constructor Create(const code : byte);
         function AsString : string;
         function AsByte : byte;
     end;
 
 
-    TAnsiColor = class(TInterfacedObject, IAnsiColor)
+    TAnsiColor = class(TInterfacedObject, IAnsiCode)
     private
         vCode   : byte;
         vString : string;
-        vColor : TAnsiColorRec;
+        vColor  : TAnsiColorRec;
+        function WithCode(const code : byte) : IAnsiCode; overload;
+        procedure Reset;
     public
-        class function New(const code : byte; const color : byte) : IAnsiColor; overload;
-        class function New(const code : byte; const r, g, b : byte) : IAnsiColor; overload;
-        function SetCode(const code : byte) : IAnsiCode; overload;
-        function SetCode(const code : byte) : IAnsiColor; overload;
+        constructor Create(const code : byte);
         function AsString : string;
         function AsByte : byte;
-        function SetColor(const color : byte) : IAnsiColor; overload;
-        function SetColor(const r, g, b : byte) : IAnsiColor; overload;
+        function WithColor(const color : byte) : IAnsiCode; overload;
+        function WithColor(const r, g, b : byte) : IAnsiCode; overload;
         function ColorMode : TAnsiColorEnum;
         function AsColor : TAnsiColorRec;
     end;
 
 
-var RESET                       : IAnsiCode;
-    BOLD                        : IAnsiCode;
-    FAINT                       : IAnsiCode;
-    ITALIC                      : IAnsiCode;
-    UNDERLINE                   : IAnsiCode;
-    BLINK_SLOW                  : IAnsiCode;
-    BLINK_RAPID                 : IAnsiCode;
-    REVERSE                     : IAnsiCode;
-    CONCEAL                     : IAnsiCode;
-    CROSSOUT                    : IAnsiCode;
-    FONT_PRIMARY                : IAnsiCode;
-    FONT_ALTERNATE_1            : IAnsiCode;
-    FONT_ALTERNATE_2            : IAnsiCode;
-    FONT_ALTERNATE_3            : IAnsiCode;
-    FONT_ALTERNATE_4            : IAnsiCode;
-    FONT_ALTERNATE_5            : IAnsiCode;
-    FONT_ALTERNATE_6            : IAnsiCode;
-    FONT_ALTERNATE_7            : IAnsiCode;
-    FONT_ALTERNATE_8            : IAnsiCode;
-    FONT_ALTERNATE_9            : IAnsiCode;
-    FRAKTUR                     : IAnsiCode;
-    BOLD_OFF                    : IAnsiCode;
-    UNDERLINE_DOUBLE            : IAnsiCode;
-    COLOR_NORMAL                : IAnsiCode;
-    ITALIC_OFF                  : IAnsiCode;
-    FRAKTUR_OFF                 : IAnsiCode;
-    UNDERLINE_OFF               : IAnsiCode;
-    BLINK_OFF                   : IAnsiCode;
-    INVERSE_OFF                 : IAnsiCode;
-    REVEAL                      : IAnsiCode;
-    CROSSOUT_OFF                : IAnsiCode;
-    FG_BLACK                    : IAnsiCode;
-    FG_RED                      : IAnsiCode;
-    FG_GREEN                    : IAnsiCode;
-    FG_YELLOW                   : IAnsiCode;
-    FG_BLUE                     : IAnsiCode;
-    FG_MAGENTA                  : IAnsiCode;
-    FG_CYAN                     : IAnsiCode;
-    FG_WHITE                    : IAnsiCode;
-    FG_DEFAULT                  : IAnsiCode;
-    BG_BLACK                    : IAnsiCode;
-    BG_RED                      : IAnsiCode;
-    BG_GREEN                    : IAnsiCode;
-    BG_YELLOW                   : IAnsiCode;
-    BG_BLUE                     : IAnsiCode;
-    BG_MAGENTA                  : IAnsiCode;
-    BG_CYAN                     : IAnsiCode;
-    BG_WHITE                    : IAnsiCode;
-    BG_DEFAULT                  : IAnsiCode;
-    FRAME                       : IAnsiCode;
-    ENCIRCLE                    : IAnsiCode;
-    OVERLINE                    : IAnsiCode;
-    FRAME_OFF                   : IAnsiCode;
-    ENCIRCLE_OFF                : IAnsiCode;
-    OVERLINE_OFF                : IAnsiCode;
-    IDEOGRAM_UNDERLINE          : IAnsiCode;
-    IDEOGRAM_UNDERLINE_DOUBLE   : IAnsiCode;
-    IDEOGRAM_OVERLINE           : IAnsiCode;
-    IDEOGRAM_OVERLINE_DOUBLE    : IAnsiCode;
-    IDEOGRAM_STRESSMARK         : IAnsiCode;
-    IDEOGRAM_OFF                : IAnsiCode;
-    FG_BRIGHT_BLACK             : IAnsiCode;
-    FG_BRIGHT_RED               : IAnsiCode;
-    FG_BRIGHT_GREEN             : IAnsiCode;
-    FG_BRIGHT_YELLOW            : IAnsiCode;
-    FG_BRIGHT_BLUE              : IAnsiCode;
-    FG_BRIGHT_MAGENTA           : IAnsiCode;
-    FG_BRIGHT_CYAN              : IAnsiCode;
-    FG_BRIGHT_WHITE             : IAnsiCode;
-    BG_BRIGHT_BLACK             : IAnsiCode;
-    BG_BRIGHT_RED               : IAnsiCode;
-    BG_BRIGHT_GREEN             : IAnsiCode;
-    BG_BRIGHT_YELLOW            : IAnsiCode;
-    BG_BRIGHT_BLUE              : IAnsiCode;
-    BG_BRIGHT_MAGENTA           : IAnsiCode;
-    BG_BRIGHT_CYAN              : IAnsiCode;
-    BG_BRIGHT_WHITE             : IAnsiCode;
+var RESET                       : TAnsiCode;
+    BOLD                        : TAnsiCode;
+    FAINT                       : TAnsiCode;
+    ITALIC                      : TAnsiCode;
+    UNDERLINE                   : TAnsiCode;
+    BLINK_SLOW                  : TAnsiCode;
+    BLINK_RAPID                 : TAnsiCode;
+    REVERSE                     : TAnsiCode;
+    CONCEAL                     : TAnsiCode;
+    CROSSOUT                    : TAnsiCode;
+    FONT_PRIMARY                : TAnsiCode;
+    FONT_ALTERNATE_1            : TAnsiCode;
+    FONT_ALTERNATE_2            : TAnsiCode;
+    FONT_ALTERNATE_3            : TAnsiCode;
+    FONT_ALTERNATE_4            : TAnsiCode;
+    FONT_ALTERNATE_5            : TAnsiCode;
+    FONT_ALTERNATE_6            : TAnsiCode;
+    FONT_ALTERNATE_7            : TAnsiCode;
+    FONT_ALTERNATE_8            : TAnsiCode;
+    FONT_ALTERNATE_9            : TAnsiCode;
+    FRAKTUR                     : TAnsiCode;
+    BOLD_OFF                    : TAnsiCode;
+    UNDERLINE_DOUBLE            : TAnsiCode;
+    COLOR_NORMAL                : TAnsiCode;
+    ITALIC_OFF                  : TAnsiCode;
+    FRAKTUR_OFF                 : TAnsiCode;
+    UNDERLINE_OFF               : TAnsiCode;
+    BLINK_OFF                   : TAnsiCode;
+    INVERSE_OFF                 : TAnsiCode;
+    REVEAL                      : TAnsiCode;
+    CROSSOUT_OFF                : TAnsiCode;
+    FG_BLACK                    : TAnsiCode;
+    FG_RED                      : TAnsiCode;
+    FG_GREEN                    : TAnsiCode;
+    FG_YELLOW                   : TAnsiCode;
+    FG_BLUE                     : TAnsiCode;
+    FG_MAGENTA                  : TAnsiCode;
+    FG_CYAN                     : TAnsiCode;
+    FG_WHITE                    : TAnsiCode;
+    FG_DEFAULT                  : TAnsiCode;
+    BG_BLACK                    : TAnsiCode;
+    BG_RED                      : TAnsiCode;
+    BG_GREEN                    : TAnsiCode;
+    BG_YELLOW                   : TAnsiCode;
+    BG_BLUE                     : TAnsiCode;
+    BG_MAGENTA                  : TAnsiCode;
+    BG_CYAN                     : TAnsiCode;
+    BG_WHITE                    : TAnsiCode;
+    BG_DEFAULT                  : TAnsiCode;
+    FRAME                       : TAnsiCode;
+    ENCIRCLE                    : TAnsiCode;
+    OVERLINE                    : TAnsiCode;
+    FRAME_OFF                   : TAnsiCode;
+    ENCIRCLE_OFF                : TAnsiCode;
+    OVERLINE_OFF                : TAnsiCode;
+    IDEOGRAM_UNDERLINE          : TAnsiCode;
+    IDEOGRAM_UNDERLINE_DOUBLE   : TAnsiCode;
+    IDEOGRAM_OVERLINE           : TAnsiCode;
+    IDEOGRAM_OVERLINE_DOUBLE    : TAnsiCode;
+    IDEOGRAM_STRESSMARK         : TAnsiCode;
+    IDEOGRAM_OFF                : TAnsiCode;
+    FG_BRIGHT_BLACK             : TAnsiCode;
+    FG_BRIGHT_RED               : TAnsiCode;
+    FG_BRIGHT_GREEN             : TAnsiCode;
+    FG_BRIGHT_YELLOW            : TAnsiCode;
+    FG_BRIGHT_BLUE              : TAnsiCode;
+    FG_BRIGHT_MAGENTA           : TAnsiCode;
+    FG_BRIGHT_CYAN              : TAnsiCode;
+    FG_BRIGHT_WHITE             : TAnsiCode;
+    BG_BRIGHT_BLACK             : TAnsiCode;
+    BG_BRIGHT_RED               : TAnsiCode;
+    BG_BRIGHT_GREEN             : TAnsiCode;
+    BG_BRIGHT_YELLOW            : TAnsiCode;
+    BG_BRIGHT_BLUE              : TAnsiCode;
+    BG_BRIGHT_MAGENTA           : TAnsiCode;
+    BG_BRIGHT_CYAN              : TAnsiCode;
+    BG_BRIGHT_WHITE             : TAnsiCode;
 
+function FG(const color : byte)   : IAnsiCode; overload;
+function FG(const r, g, b : byte) : IAnsiCode; overload;
+function BG(const color : byte)   : IAnsiCode; overload;
+function BG(const r, g, b : byte) : IAnsiCode; overload;
 
-function FG(const color : byte)   : IAnsiColor; overload;
-function FG(const r, g, b : byte) : IAnsiColor; overload;
-function BG(const color : byte)   : IAnsiColor; overload;
-function BG(const r, g, b : byte) : IAnsiColor; overload;
-
-
+function Codify(const codes : array of IAnsiCode) : string;
+function Ansify(const codes : array of IAnsiCode; const msg : string) : string;
 
 
 implementation
-
-function FG(const color : byte) : IAnsiColor;
-begin
-    Result := TAnsiColor.New(38, color);
-end;
-
-
-function FG(const r, g, b : byte) : IAnsiColor;
-begin
-    Result := TAnsiColor.New(38, r, g, b);
-end;
-
-
-function BG(const color : byte) : IAnsiColor;
-begin
-    Result := TAnsiColor.New(48, color);
-end;
-
-
-function BG(const r, g, b : byte) : IAnsiColor;
-begin
-    Result := TAnsiColor.New(48, r, g, b);
-end;
-
-
 const
     ANSI_SEPARATOR : char   = ';';
     ANSI_BEGIN     : string = #27'[';
     ANSI_END       : char   = 'm';
 
-class function TAnsiCode.New(const code : byte) : IAnsiCode;
+var
+    _FG : TAnsiColor;
+    _BG : TAnsiColor;
+
+function Codify(const codes : array of IAnsiCode) : string;
+var code : IAnsiCode;
 begin
-    New := Create.SetCode(code);
+    Result := '\x[';
+    // Result := ANSI_BEGIN;
+    for code in codes do begin
+        Result += code.AsString;
+        Result += ANSI_SEPARATOR;
+    end;
+    Delete(Result, Length(Result), 1);
+    Result += ANSI_END;
 end;
 
-function TAnsiCode.SetCode(const code : byte) : IAnsiCode;
+
+function Ansify(const codes : array of IAnsiCode; const msg : string) : string;
+begin
+    Result := Codify(codes) + msg + Codify([RESET]);
+end;
+
+
+function FG(const color : byte) : IAnsiCode;
+begin
+    Result := _FG.WithColor(color);
+end;
+
+
+function FG(const r, g, b : byte) : IAnsiCode;
+begin
+    Result := _FG.WithColor(r, g, b);
+end;
+
+
+function BG(const color : byte) : IAnsiCode;
+begin
+    Result := _BG.WithColor(color);
+end;
+
+
+function BG(const r, g, b : byte) : IAnsiCode;
+begin
+    Result := _BG.WithColor(r, g, b);
+end;
+
+constructor TAnsiCode.Create(const code : byte);
+begin
+    self.WithCode(code);
+end;
+
+function TAnsiCode.WithCode(const code : byte) : IAnsiCode;
 begin
     self.vCode := code;
     self.vString := IntToStr(code);
@@ -200,31 +213,22 @@ begin
 end;
 
 
-class function TAnsiColor.New(const code : byte; const color : byte) : IAnsiColor;
+constructor TAnsiColor.Create(const code : byte);
 begin
-    New := IAnsiColor(Create.SetCode(code)).SetColor(color);
+    self.WithCode(code);
 end;
 
 
-class function TAnsiColor.New(const code : byte; const r, g, b : byte) : IAnsiColor;
+function TAnsiColor.WithCode(const code : byte) : IAnsiCode;
 begin
-    New := IAnsiColor(Create.SetCode(code)).SetColor(r, g, b);
+    self.vCode := code;
+    self.Reset();
+    Result := self;
 end;
 
-
-function TAnsiColor.SetCode(const code : byte) : IAnsiCode;
-var dummy : IAnsiCode;
+procedure TAnsiColor.Reset;
 begin
-    dummy  := TAnsiCode.New(code);
-    Result := IAnsiCode(dummy);
-end;
-
-
-function TAnsiColor.SetCode(const code : byte) : IAnsiColor;
-begin
-    self.vCode   := code;
-    self.vString := IntToStr(code);
-    Result       := self;
+    self.vString := IntToStr(self.vCode);
 end;
 
 
@@ -240,8 +244,9 @@ begin
 end;
 
 
-function TAnsiColor.SetColor(const color : byte) : IAnsiColor; overload;
+function TAnsiColor.WithColor(const color : byte) : IAnsiCode; overload;
 begin
+    self.Reset();
     self.vColor.mode  := AnsiColorStd;
     self.vColor.color := color;
     self.vString      += ANSI_SEPARATOR + IntToStr(color);
@@ -249,9 +254,10 @@ begin
 end;
 
 
-function TAnsiColor.SetColor(const r, g, b : byte) : IAnsiColor; overload;
+function TAnsiColor.WithColor(const r, g, b : byte) : IAnsiCode; overload;
 begin
-    self.vColor.mode := AnsiColorStd;
+    self.Reset();
+    self.vColor.mode := AnsiColorRGB;
     self.vColor.r    := r;
     self.vColor.g    := g;
     self.vColor.b    := b;
@@ -275,85 +281,89 @@ end;
 
 
 initialization
-RESET                       := TAnsiCode.New(0);
-BOLD                        := TAnsiCode.New(1);
-FAINT                       := TAnsiCode.New(2);
-ITALIC                      := TAnsiCode.New(3);
-UNDERLINE                   := TAnsiCode.New(4);
-BLINK_SLOW                  := TAnsiCode.New(5);
-BLINK_RAPID                 := TAnsiCode.New(6);
-REVERSE                     := TAnsiCode.New(7);
-CONCEAL                     := TAnsiCode.New(8);
-CROSSOUT                    := TAnsiCode.New(9);
-FONT_PRIMARY                := TAnsiCode.New(10);
-FONT_ALTERNATE_1            := TAnsiCode.New(11);
-FONT_ALTERNATE_2            := TAnsiCode.New(12);
-FONT_ALTERNATE_3            := TAnsiCode.New(13);
-FONT_ALTERNATE_4            := TAnsiCode.New(14);
-FONT_ALTERNATE_5            := TAnsiCode.New(15);
-FONT_ALTERNATE_6            := TAnsiCode.New(16);
-FONT_ALTERNATE_7            := TAnsiCode.New(17);
-FONT_ALTERNATE_8            := TAnsiCode.New(18);
-FONT_ALTERNATE_9            := TAnsiCode.New(19);
-FRAKTUR                     := TAnsiCode.New(20);
-BOLD_OFF                    := TAnsiCode.New(21);
-UNDERLINE_DOUBLE            := TAnsiCode.New(21);
-COLOR_NORMAL                := TAnsiCode.New(22);
-ITALIC_OFF                  := TAnsiCode.New(23);
-FRAKTUR_OFF                 := TAnsiCode.New(23);
-UNDERLINE_OFF               := TAnsiCode.New(24);
-BLINK_OFF                   := TAnsiCode.New(25);
-INVERSE_OFF                 := TAnsiCode.New(27);
-REVEAL                      := TAnsiCode.New(28);
-CROSSOUT_OFF                := TAnsiCode.New(29);
-FG_BLACK                    := TAnsiCode.New(30);
-FG_RED                      := TAnsiCode.New(31);
-FG_GREEN                    := TAnsiCode.New(32);
-FG_YELLOW                   := TAnsiCode.New(33);
-FG_BLUE                     := TAnsiCode.New(34);
-FG_MAGENTA                  := TAnsiCode.New(35);
-FG_CYAN                     := TAnsiCode.New(36);
-FG_WHITE                    := TAnsiCode.New(37);
-FG_DEFAULT                  := TAnsiCode.New(39);
-BG_BLACK                    := TAnsiCode.New(40);
-BG_RED                      := TAnsiCode.New(41);
-BG_GREEN                    := TAnsiCode.New(42);
-BG_YELLOW                   := TAnsiCode.New(43);
-BG_BLUE                     := TAnsiCode.New(44);
-BG_MAGENTA                  := TAnsiCode.New(45);
-BG_CYAN                     := TAnsiCode.New(46);
-BG_WHITE                    := TAnsiCode.New(47);
-BG_DEFAULT                  := TAnsiCode.New(49);
-FRAME                       := TAnsiCode.New(51);
-ENCIRCLE                    := TAnsiCode.New(52);
-OVERLINE                    := TAnsiCode.New(53);
-FRAME_OFF                   := TAnsiCode.New(54);
-ENCIRCLE_OFF                := TAnsiCode.New(54);
-OVERLINE_OFF                := TAnsiCode.New(55);
-IDEOGRAM_UNDERLINE          := TAnsiCode.New(60);
-IDEOGRAM_UNDERLINE_DOUBLE   := TAnsiCode.New(61);
-IDEOGRAM_OVERLINE           := TAnsiCode.New(62);
-IDEOGRAM_OVERLINE_DOUBLE    := TAnsiCode.New(63);
-IDEOGRAM_STRESSMARK         := TAnsiCode.New(64);
-IDEOGRAM_OFF                := TAnsiCode.New(65);
-FG_BRIGHT_BLACK             := TAnsiCode.New(90);
-FG_BRIGHT_RED               := TAnsiCode.New(91);
-FG_BRIGHT_GREEN             := TAnsiCode.New(92);
-FG_BRIGHT_YELLOW            := TAnsiCode.New(93);
-FG_BRIGHT_BLUE              := TAnsiCode.New(94);
-FG_BRIGHT_MAGENTA           := TAnsiCode.New(95);
-FG_BRIGHT_CYAN              := TAnsiCode.New(96);
-FG_BRIGHT_WHITE             := TAnsiCode.New(97);
-BG_BRIGHT_BLACK             := TAnsiCode.New(100);
-BG_BRIGHT_RED               := TAnsiCode.New(101);
-BG_BRIGHT_GREEN             := TAnsiCode.New(102);
-BG_BRIGHT_YELLOW            := TAnsiCode.New(103);
-BG_BRIGHT_BLUE              := TAnsiCode.New(104);
-BG_BRIGHT_MAGENTA           := TAnsiCode.New(105);
-BG_BRIGHT_CYAN              := TAnsiCode.New(106);
-BG_BRIGHT_WHITE             := TAnsiCode.New(107);
+RESET                       := TAnsiCode.Create(0);
+BOLD                        := TAnsiCode.Create(1);
+FAINT                       := TAnsiCode.Create(2);
+ITALIC                      := TAnsiCode.Create(3);
+UNDERLINE                   := TAnsiCode.Create(4);
+BLINK_SLOW                  := TAnsiCode.Create(5);
+BLINK_RAPID                 := TAnsiCode.Create(6);
+REVERSE                     := TAnsiCode.Create(7);
+CONCEAL                     := TAnsiCode.Create(8);
+CROSSOUT                    := TAnsiCode.Create(9);
+FONT_PRIMARY                := TAnsiCode.Create(10);
+FONT_ALTERNATE_1            := TAnsiCode.Create(11);
+FONT_ALTERNATE_2            := TAnsiCode.Create(12);
+FONT_ALTERNATE_3            := TAnsiCode.Create(13);
+FONT_ALTERNATE_4            := TAnsiCode.Create(14);
+FONT_ALTERNATE_5            := TAnsiCode.Create(15);
+FONT_ALTERNATE_6            := TAnsiCode.Create(16);
+FONT_ALTERNATE_7            := TAnsiCode.Create(17);
+FONT_ALTERNATE_8            := TAnsiCode.Create(18);
+FONT_ALTERNATE_9            := TAnsiCode.Create(19);
+FRAKTUR                     := TAnsiCode.Create(20);
+BOLD_OFF                    := TAnsiCode.Create(21);
+UNDERLINE_DOUBLE            := TAnsiCode.Create(21);
+COLOR_NORMAL                := TAnsiCode.Create(22);
+ITALIC_OFF                  := TAnsiCode.Create(23);
+FRAKTUR_OFF                 := TAnsiCode.Create(23);
+UNDERLINE_OFF               := TAnsiCode.Create(24);
+BLINK_OFF                   := TAnsiCode.Create(25);
+INVERSE_OFF                 := TAnsiCode.Create(27);
+REVEAL                      := TAnsiCode.Create(28);
+CROSSOUT_OFF                := TAnsiCode.Create(29);
+FG_BLACK                    := TAnsiCode.Create(30);
+FG_RED                      := TAnsiCode.Create(31);
+FG_GREEN                    := TAnsiCode.Create(32);
+FG_YELLOW                   := TAnsiCode.Create(33);
+FG_BLUE                     := TAnsiCode.Create(34);
+FG_MAGENTA                  := TAnsiCode.Create(35);
+FG_CYAN                     := TAnsiCode.Create(36);
+FG_WHITE                    := TAnsiCode.Create(37);
+FG_DEFAULT                  := TAnsiCode.Create(39);
+BG_BLACK                    := TAnsiCode.Create(40);
+BG_RED                      := TAnsiCode.Create(41);
+BG_GREEN                    := TAnsiCode.Create(42);
+BG_YELLOW                   := TAnsiCode.Create(43);
+BG_BLUE                     := TAnsiCode.Create(44);
+BG_MAGENTA                  := TAnsiCode.Create(45);
+BG_CYAN                     := TAnsiCode.Create(46);
+BG_WHITE                    := TAnsiCode.Create(47);
+BG_DEFAULT                  := TAnsiCode.Create(49);
+FRAME                       := TAnsiCode.Create(51);
+ENCIRCLE                    := TAnsiCode.Create(52);
+OVERLINE                    := TAnsiCode.Create(53);
+FRAME_OFF                   := TAnsiCode.Create(54);
+ENCIRCLE_OFF                := TAnsiCode.Create(54);
+OVERLINE_OFF                := TAnsiCode.Create(55);
+IDEOGRAM_UNDERLINE          := TAnsiCode.Create(60);
+IDEOGRAM_UNDERLINE_DOUBLE   := TAnsiCode.Create(61);
+IDEOGRAM_OVERLINE           := TAnsiCode.Create(62);
+IDEOGRAM_OVERLINE_DOUBLE    := TAnsiCode.Create(63);
+IDEOGRAM_STRESSMARK         := TAnsiCode.Create(64);
+IDEOGRAM_OFF                := TAnsiCode.Create(65);
+FG_BRIGHT_BLACK             := TAnsiCode.Create(90);
+FG_BRIGHT_RED               := TAnsiCode.Create(91);
+FG_BRIGHT_GREEN             := TAnsiCode.Create(92);
+FG_BRIGHT_YELLOW            := TAnsiCode.Create(93);
+FG_BRIGHT_BLUE              := TAnsiCode.Create(94);
+FG_BRIGHT_MAGENTA           := TAnsiCode.Create(95);
+FG_BRIGHT_CYAN              := TAnsiCode.Create(96);
+FG_BRIGHT_WHITE             := TAnsiCode.Create(97);
+BG_BRIGHT_BLACK             := TAnsiCode.Create(100);
+BG_BRIGHT_RED               := TAnsiCode.Create(101);
+BG_BRIGHT_GREEN             := TAnsiCode.Create(102);
+BG_BRIGHT_YELLOW            := TAnsiCode.Create(103);
+BG_BRIGHT_BLUE              := TAnsiCode.Create(104);
+BG_BRIGHT_MAGENTA           := TAnsiCode.Create(105);
+BG_BRIGHT_CYAN              := TAnsiCode.Create(106);
+BG_BRIGHT_WHITE             := TAnsiCode.Create(107);
+
+_FG := TAnsiColor.Create(38);
+_BG := TAnsiColor.Create(48);
 
 
 finalization
+
 
 end.
