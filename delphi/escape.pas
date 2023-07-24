@@ -151,23 +151,11 @@ const
     ANSI_SEPARATOR : char   = ';';
     ANSI_BEGIN     : string = #27'[';
     ANSI_END       : char   = 'm';
-    VALID_ANSI_COLOR_CODES : array of byte = (38, 48);
+    VALID_ANSI_COLOR_CODES : set of byte = [38, 48];
 
 var
     _FG : IAnsiCode;
     _BG : IAnsiCode;
-
-
-operator in (val : byte; arr : array of byte) Res : boolean;
-var elem : byte;
-begin
-    Res := false;
-    for elem in arr do
-        if val = elem then begin
-            Res := true;
-            break;
-        end;
-end;
 
 
 function Codify(const codes : array of IAnsiCode) : string;
@@ -237,16 +225,18 @@ end;
 
 function TAnsiCode.WithColor(const color : byte) : IAnsiCode; overload;
 begin
-    with TAnsiColor.New(color) do
-        self.vString := IntToStr(self.vCode) + ANSI_SEPARATOR + AsString;
+    if self.vHasColor then
+        with TAnsiColor.New(color) do
+            self.vString := IntToStr(self.vCode) + ANSI_SEPARATOR + AsString;
     Result := self;
 end;
 
 
 function TAnsiCode.WithColor(const r, g, b : byte) : IAnsiCode; overload;
 begin
-    with TAnsiColor.New(r, g, b) do
-        self.vString := IntToStr(self.vCode) + ANSI_SEPARATOR + AsString;
+    if self.vHasColor then
+        with TAnsiColor.New(r, g, b) do
+            self.vString := IntToStr(self.vCode) + ANSI_SEPARATOR + AsString;
     Result := self;
 end;
 
