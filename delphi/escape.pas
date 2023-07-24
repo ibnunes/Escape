@@ -149,7 +149,7 @@ function Codify(const codes : array of IAnsiCode) : string;
 var code : IAnsiCode;
 begin
     Result := '\x[';
-    // Result := ANSI_BEGIN;
+    // Result := ANSI_BEGIN;    // TODO: switch when finishing first version
     for code in codes do begin
         Result += code.AsString;
         Result += ANSI_SEPARATOR;
@@ -249,7 +249,7 @@ begin
     self.Reset();
     self.vColor.mode  := AnsiColorStd;
     self.vColor.color := color;
-    self.vString      += ANSI_SEPARATOR + IntToStr(color);
+    self.vString      += ANSI_SEPARATOR + '5' + ANSI_SEPARATOR + IntToStr(color);
     Result := self;
 end;
 
@@ -261,7 +261,7 @@ begin
     self.vColor.r    := r;
     self.vColor.g    := g;
     self.vColor.b    := b;
-    self.vString     += ANSI_SEPARATOR + IntToStr(r) + ANSI_SEPARATOR + IntToStr(g) + ANSI_SEPARATOR + IntToStr(b);
+    self.vString     += ANSI_SEPARATOR + '2' + ANSI_SEPARATOR + IntToStr(r) + ANSI_SEPARATOR + IntToStr(g) + ANSI_SEPARATOR + IntToStr(b);
     Result := self;
 end;
 
