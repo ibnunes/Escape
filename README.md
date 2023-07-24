@@ -9,7 +9,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
     * zsh
   * Python 3
   * C
-  * Delphi
+  * Delphi (Object Pascal)
 
 ### To be added (wishlist)
 
@@ -17,7 +17,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
   * C
   * C++
   * C#
-  * Delphi (Object Pascal)
+  * Pascal
   * Java
   * Kotlin
   * OCaml
@@ -83,7 +83,7 @@ int main(void) {
 ```
 
 
-### Delphi
+### Delphi (Object Pascal)
 
 Tested in Free Pascal Compiler, version 3.2.2.
 ```delphi
