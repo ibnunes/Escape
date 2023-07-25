@@ -10,6 +10,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
   * C
   * C++20
   * Python 3
+  * OCaml
   * Pascal
   * Delphi (Object Pascal)
 
@@ -19,7 +20,6 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
   * C#
   * Java
   * Kotlin
-  * OCaml
 
 ## The codes
 
