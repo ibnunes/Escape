@@ -1,29 +1,28 @@
 # Escape the ANSI Escape Code hellhole
 
-This project aims to provide small, easily mantainable "libraries" allowing developers to add some flair to their CLI apps through ANSI Escape Codes (AEC) without the need to actually manage those codes.
+This project aims to provide small, easily mantainable "libraries" allowing developers to add some flair to their CLI apps through ANSI Escape Codes (AEC) without the need to manually manage those codes.
 
 ## Languages
-### Supported
 
-  * sh &mdash; command language:
-    * zsh
-  * C
-  * C++20
-  * Python 3
-  * OCaml
-  * Pascal
-  * Delphi (Object Pascal)
+  - [ ] **[WIP]** sh &mdash; command language:
+    - [X] zsh
+    - [ ] Bash
+  - [X] C
+  - [X] C++20
+  - [X] Python 3
+  - [X] OCaml
+  - [X] Pascal
+  - [X] Delphi (Object Pascal)
+  - [ ] **[WIP]** C#
+  - [ ] Java
+  - [ ] Kotlin
+  - [ ] Swift
+  - [ ] Haskell
 
-### To be added (wishlist)
-
-  * Bash
-  * C#
-  * Java
-  * Kotlin
 
 ## The codes
 
-In [AEC.md](AEC.md).
+The ANSI Escape Codes used in Control Sequence Introducers can be found in [AEC.md](AEC.md).
 
 
 ## Examples
@@ -156,9 +155,18 @@ end.
 The software is provided without warranty and as is under the [GNU General Public License version 2](LICENSE.md).
 
 
+## Roadmap
+
+**Notice!** This section can be expanded without prior notice.
+
+  - [ ] **[WIP]** Add fundamental function to apply AECs to the languages in the list.
+  - [ ] Add support to interpolated AECs.
+  - [ ] Add support to more CSIs (Control Sequence Introducers).
+
+
 ## Contribute
 
-**Notice!** This section will be expanded as needed.
+**Notice!** This section can be expanded as needed without prior notice.
 
 These are the current guidelines for contribution:
 
