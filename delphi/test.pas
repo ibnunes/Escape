@@ -1,4 +1,4 @@
-{$mode delphi}
+{$mode objfpc}
 program test;
 uses escape;
 
