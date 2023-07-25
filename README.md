@@ -4,6 +4,8 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
 
 ## Languages
 
+**Not** in alphabetical order **nor** by preference:
+
   - [ ] **[WIP]** sh &mdash; command language:
     - [X] zsh
     - [ ] Bash
@@ -18,6 +20,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
   - [ ] Kotlin
   - [ ] Swift
   - [ ] Haskell
+  - [ ] Rust
 
 
 ## The codes
