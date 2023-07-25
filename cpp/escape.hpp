@@ -10,6 +10,22 @@
 using namespace std;
 
 
+/* === IDEA ===
+unsigned x = 0x64320926;
+unsigned d[] = {
+    (x & 0xFF000000) >> 24,
+    (x & 0x00FF0000) >> 16,
+    (x & 0x0000FF00) >> 8,
+    x & 0x000000FF
+};
+for (auto i : d)
+    cout << i << " ";
+
+OUTPUT:
+100 50 9 38
+*/
+
+
 // Reverse wrapper, thanks to:
 // https://stackoverflow.com/a/28139075/20566555
 namespace AnsiUtils {
