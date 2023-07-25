@@ -106,28 +106,17 @@ int main(void) {
 ```
 
 
-### Delphi (Object Pascal)
+### OCaml
 
-  * `Ansify<codes...>("string")`: Works with any string in runtime;
-  * `AnsifyS<length, codes...>("string")`: Run in compile-time, needing the exact length of the string as first template parameter (excluding `\0`) &mdash; reads as "*Ansify Static*".
+```ocaml
+open Escape
 
-No version is currently available for previous C++ standards. See at the end how to contribute.
-
-```cpp
-#include "escape.hpp"
-#include <iostream>
-
-using namespace std;
-using namespace Ansi;
-
-int main(void) {
-    cout << AnsifyS<9, Code::BOLD, Code::FG_RED>("Fatality!") << " An error has not occurred :(" << endl;
-    cout << "And here is a " << Ansify<Code::ITALIC, Color::FG<69>>("Color Test, Standard") << "." << endl;
-    cout << AnsifyS<15, Code::UNDERLINE, Color::BG<100, 50, 9>, Code::ITALIC>("Color Test, RGB") <<
-        ", and also " << Ansify<Code::ITALIC, Code::UNDERLINE, Color::FG<9, 100, 5>>("Color Test, RGB") << endl;
-    return 0;
-}
+let () =
+  let () = ansify [Bold; Fg_Red] "Fatality" ^ " An error has not occurred :(" |> print_endline in
+  let () = "And here is a " ^ ansify [Italic; Fg 69] "Color Test, Standard" ^ "." |> print_endline in
+    ansify [Underline; Italic; Bgx (100, 50, 9)] "Color Test, RGB" ^ ", and also " ^ ansify [Fgx (9, 100, 50); Underline; Italic] "Color Test, RGB" |> print_endline
 ```
+
 
 
 ### Pascal
