@@ -124,3 +124,9 @@ dmypy.json
 .pyre/
 
 .vscode/
+
+*.o
+*.ppu
+*.bin
+
+playground/
