@@ -85,22 +85,23 @@ const bg_bright_white           : string = '107';
 
 function ansify(codes : array of const; const msg : string) : string;
 
+
 implementation
 uses sysutils;
 
-const ansi_begin : string = #27'[';
-const ansi_end : string = 'm';
-const ansi_separator : char = ';';
+const ansi_begin     : string = #27'[';
+const ansi_end       : string = 'm';
+const ansi_separator : char   = ';';
 
 function codify(codes : array of const) : string;
 const
     COLOR_MODE : array[1..3] of string = ('5', '5', '2');
 
 var _color : array[1..3] of byte;
-    _clind : 1..3 = 1;
+    _clind : 1..3    = 1;
     _catch : boolean = false;
-    _param : string = '';
-    i : word;
+    _param : string  = '';
+    i      : word;
 
     function color_to_string(const color : array of byte) : string;
     var c : byte;
@@ -108,22 +109,23 @@ var _color : array[1..3] of byte;
         color_to_string := '';
         for c in color do
             color_to_string += IntToStr(c) + ansi_separator;
-        Delete(color_to_string, Length(color_to_string) - 1, 1);
+        Delete(color_to_string, Length(color_to_string), 1);
     end;
 
     procedure flush_color;
     begin
-        _param += COLOR_MODE[_clind] + ansi_separator + color_to_string(_color[1.._clind]);
+        _param += COLOR_MODE[_clind-1] + ansi_separator + color_to_string(_color[1.._clind-1]) + ansi_separator;
+        _clind := 1;
     end;
 
 begin
-    for i := 0 to High(codes) do begin
+    for i := 0 to High(codes) do
         case codes[i].vType of
             vtString:
                 case codes[i].vString^ of
-                    'fg', 'bg': begin
+                    '38', '48': begin
                         if _catch then flush_color;
-                        _param += codes[i].vString^ + ansi_separator;;
+                        _param += codes[i].vString^ + ansi_separator;
                         _catch := true;
                     end
                 else begin
@@ -134,19 +136,18 @@ begin
                     _param += codes[i].vString^ + ansi_separator;
                 end;
                 end;
-
             vtInteger:
                 if _catch then begin
                     _color[_clind] := codes[i].vInteger;
                     Inc(_clind);
                 end;
         else
-            exit;
+            continue;
         end;
-    end;
+    if _catch then flush_color;
+    Delete(_param, Length(_param), 1);
     codify := ansi_begin + _param + ansi_end;
 end;
-
 
 function ansify(codes : array of const; const msg : string) : string;
 begin
