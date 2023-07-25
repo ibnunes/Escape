@@ -1,4 +1,4 @@
-
+(* A library very bonita *)
 
 type ansiCode =
   | Reset
@@ -179,7 +179,11 @@ let ansify codes msg =
     ansi_codes ^ msg ^ codify [Reset]
 
 
+(* Tests *)
+(*
+let () = ansify [Bold; Underline] ("Cor " ^ codify [Fgx (34, 238, 177)] ^ "bonita") |> print_endline
 let () =
-  let () = ansify [Bold; Fg_Red] "Fatality!" |> print_endline in
-  let () = ansify [Bold; Underline] ("Cor " ^ codify [Fgx (34, 238, 177)] ^ "bonita") |> print_endline in
-    ()
+  let () = ansify [Bold; Fg_Red] "Fatality" ^ " An error has not occurred :(" |> print_endline in
+  let () = "And here is a " ^ ansify [Italic; Fg 69] "Color Test, Standard" ^ "." |> print_endline in
+    ansify [Underline; Italic; Bgx (100, 50, 9)] "Color Test, RGB" ^ ", and also " ^ ansify [Fgx (9, 100, 50); Underline; Italic] "Color Test, RGB" |> print_endline
+*)
