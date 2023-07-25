@@ -4,7 +4,7 @@ namespace Escape;
 
 public static class AecEscape {
 
-    private const string EscapeFormat = "\\033[§m";
+    private const string EscapeFormat = "\u001b[§m";
     private const char   Separator    = ';';
     
     private static readonly Dictionary<int , string> ColorMode = new() {

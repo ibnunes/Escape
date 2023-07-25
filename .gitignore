@@ -128,3 +128,5 @@ dmypy.json
 csharp/Escape/Escape/obj/
 
 csharp/Escape/.idea/
+
+csharp/Escape/Escape/bin/
