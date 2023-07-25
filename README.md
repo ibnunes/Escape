@@ -9,13 +9,14 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
     * zsh
   * Python 3
   * C
+  * Delphi (Object Pascal)
   * C++20
 
 ### To be added (wishlist)
 
   * Bash
   * C#
-  * Delphi (Object Pascal)
+  * Pascal
   * Java
   * Kotlin
   * OCaml
@@ -27,10 +28,16 @@ In [AEC.md](AEC.md).
 
 ## Examples
 
+Expected output:
+
+![Expected output](doc/img/expected_output.png)
+
 ### zsh
 
 ```sh
-echo "$(font bold fg_red)Fatality!$(font reset)"
+echo "$(font bold fg_red)Fatality!$(font reset) An error has not occurred :("
+echo "And here is a $(font italic fg 69)Color Test, Standard$(font reset)."
+echo "$(font italic underline bg 100 50 9)Color Test, RGB$(font reset), and also $(font underline italic fg 9 100 50)Color Test, RGB$(font reset)"
 ```
 
 To be used, it is recommended to place [`escape.zsh`](sh/zsh/escape.zsh) in a folder like `~/.zshrc.d` and add the following to `.zshrc`:
@@ -47,7 +54,15 @@ source ~/.zshrc.d/escape.zsh
 ```python
 from escape import Ansi.escape as font
 
-print( f"{font('bold', 'fg_red')}Fatality!{font('reset')}" )
+# With formatted strings
+print( f"{font('bold', 'fg_red')}Fatality!{font('reset')} An error has not occurred :(" )
+print( f"And here is a {font('italic', 'fg', 69)}Color Test, Standard{font('reset')}." )
+
+# And with the str.format method
+print( "{1}Color Test, RGB{0}, and also {2}Color Test, RGB{0}".format(    \
+    font('reset'),                                                        \
+    font('italic', 'underline', 'bg', 100, 50, 9),                        \
+    font('underline', 'italic', 'fg', 9, 100, 50) ) )
 ```
 
 
@@ -59,13 +74,27 @@ print( f"{font('bold', 'fg_red')}Fatality!{font('reset')}" )
 #include <stdio.h>
 
 int main(void) {
-    printf("%s%s%s\n",
-        font(BOLD, FG_RED),
-        "Fatality!",
-        nofont
-    );
+    printf("%s%s%s\n", font(BOLD, FG_RED), "Fatality!", nofont);
+    printf("%s%s%s%s%s\n", "And here is a ", font(ITALIC, FG(69)), "Color Test, Standard", nofont, ".");
+    printf("%s%s%s%s%s%s%s\n", font(UNDERLINE, ITALIC, BG(100, 50, 9)), "Color Test, RGB", nofont, ", and also ", font(ITALIC, FG(9, 100, 50), ITALIC), "Color Test, RGB", nofont);
     return 0;
 }
+```
+
+
+### Delphi (Object Pascal)
+
+Tested in Free Pascal Compiler, version 3.2.2.
+```delphi
+{$mode delphi}
+program test;
+uses escape;
+
+begin
+    writeln( Ansify([BOLD, FG_RED], 'Fatality!'), ' An error has not occurred! :(' );
+    writeln( 'And here is a ', Ansify([ITALIC, FG(69)], 'Color Test, Standard'), '.' );
+    writeln( Ansify([UNDERLINE, BG(100, 50, 9), ITALIC], 'Color Test, RGB'), ', and also ', Ansify([UNDERLINE, FG(9, 100, 50), ITALIC], 'Color Test, RGB') );
+end.
 ```
 
 

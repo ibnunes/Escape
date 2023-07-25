@@ -125,4 +125,8 @@ dmypy.json
 
 .vscode/
 
+*.o
+*.ppu
 *.bin
+
+playground/
