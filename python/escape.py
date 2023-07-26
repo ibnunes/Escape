@@ -1,8 +1,22 @@
-# TODO: doc string
+"""# Escape library
+Escape the ANSI Escape Code hellhole
+
+* License: GNU-GPL v2.0
+
+Igor Nunes, 2023
+* Contribute in https://github.com/ibnunes/Escape
+"""
 
 from platform import system as get_os
 
 class Ansi(object):
+    """ Class to build ANSI Escape Codes (AEC)
+
+    Attributes:
+        * `ESCAPE_CODES` (dict): Conversion from readable string to AEC int.
+        * `COLOR_MODE` (dict): Translates the number of colors to the appropriate mode (`5`: 8-bit; `2`: RGB).
+    """
+
     ESCAPE_CODES = {
         'reset'                     : 0,
         'bold'                      : 1,
@@ -93,11 +107,30 @@ class Ansi(object):
 
     @staticmethod
     def _canonize_color(color : int) -> int:
+        """Internal function! Forces a color to be in the range [0, 255].\\
+        If the color is greater than 255, it'll be capped to 255.\\
+        If the color is under 0, it'll be corrected to 0.
+
+        ### Parameters
+            * `color` (int): a value representing a color.
+
+        ### Return
+            (int) An unsigned integral value in the range of [0, 255].
+        """
         return color if color in range(0, 256) else (0 if color < 0 else 255)
 
 
     @staticmethod
     def escape(*args) -> str:
+        """Builds an ANSI Escape Code from the given arguments.
+
+        ### Parameters
+            * `args` (any): should be a string as defined in `ESCAPE_CODES` and, in case of personalized colors (`fg`, `bg`), unsigned int values in the range [0, 255].
+
+        ### Return
+            (str) A ready-to-use ANSI Escape Code.
+        """
+
         if get_os() not in ["Linux", "Darwin"]:
             return ""
 
@@ -135,4 +168,4 @@ class Ansi(object):
 
 
 if __name__ == "__main__":
-    pass
+    print("Hey! This is a library, my fello developer. I don't do a thing by myself :')")
