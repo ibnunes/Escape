@@ -125,6 +125,10 @@ dmypy.json
 
 .vscode/
 
+csharp/Escape/Escape/obj/
+csharp/Escape/.idea/
+csharp/Escape/Escape/bin/
+
 *.o
 *.ppu
 *.bin
@@ -132,5 +136,4 @@ dmypy.json
 playground/
 
 *.cmi
-
 *.cmo
