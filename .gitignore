@@ -137,3 +137,5 @@ playground/
 
 *.cmi
 *.cmo
+
+*.cmx

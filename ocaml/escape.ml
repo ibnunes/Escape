@@ -1,5 +1,15 @@
-(* A library very bonita *)
+(* Escape library
+ * Escape the ANSI Escape Code hellhole
+ *
+ *    License: GNU-GPL v2.0
+ *
+ *    Igor Nunes, 2023
+ *    Contribute in https://github.com/ibnunes/Escape
+ *
+ * Compiled and tested with OCaml 5.0.0
+ *)
 
+(* Inductive type to encode ANSI Codes *)
 type ansiCode =
   | Reset
   | Bold
@@ -41,7 +51,7 @@ type ansiCode =
   | Fg_Cyan
   | Fg_White
   | Fg  of int
-  | Fgx of int * int * int
+  | Fgx of int * int * int    (* Fgx stands for Foreground Extended, i.e. for RGB *)
   | Fg_Default
   | Bg_Black
   | Bg_Red
@@ -52,7 +62,7 @@ type ansiCode =
   | Bg_Cyan
   | Bg_White
   | Bg  of int
-  | Bgx of int * int * int
+  | Bgx of int * int * int    (* Bgx stands for Background Extended, i.e. for RGB *)
   | Bg_Default
   | Frame
   | Encircle
@@ -83,6 +93,7 @@ type ansiCode =
   | Bg_Bright_Cyan
   | Bg_Bright_White
 
+(* Transforms an ANSI Code to its string format, including colors *)
 let stringify = function
   | Reset                     -> "0"
   | Bold                      -> "1"
@@ -166,13 +177,12 @@ let stringify = function
   | Bg_Bright_Cyan            -> "106"
   | Bg_Bright_White           -> "107"
 
-let (<|) f g x = f (g x)
-let (<<) f x = f x
+(* Builds an ANSI Escape Code from the given list of codes *)
+let codify codes =
+  List.fold_left (fun s c -> s ^ stringify c ^ ";") "\x1b[" codes |>
+  fun s -> String.sub s 0 (String.length s - 1) ^ "m"
 
-let codify =
-  (fun s -> String.sub s 0 (String.length s - 1) ^ "m") <|
-  List.fold_left (fun s c -> s ^ stringify c ^ ";") "\x1b["
-
+(* Ansifies a string with the givel list of codes, final reset included *)
 let ansify codes msg =
   let ansi_codes = codify codes in
   let ansi_codes = String.sub ansi_codes 0 (String.length ansi_codes - 1) ^ "m" in
