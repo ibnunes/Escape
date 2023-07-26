@@ -1,3 +1,14 @@
+# Escape Library
+#   Escape the ANSI Escape Code hellhole
+#   For zsh
+#
+# License: GNU-GPL v2.0
+#
+# Igor Nunes, 2023
+# Contribute in https://github.com/ibnunes/Escape
+
+# Dictionary: FONT
+#   ANSI Escape Code -- Control Sequence Introducers
 declare -A FONT
 FONT=(
     ['reset']=0
@@ -81,18 +92,21 @@ FONT=(
     ['bg_bright_white']=107
 )
 
+# Function: font
+#   Arguments:  strings as per $FONT, and ints for colors
+#   Returns:    string with complete ANSI Escape Code (AEC)
 function font() {
-    local ESCAPE="\033[§m"
-    local PARAM=()
-    local CATCH=false
-    local COLOR=()
+    local ESCAPE="\033[§m"          # AEC pattern, where § is the placeholder
+    local PARAM=()                  # Array of parameters after processing
+    local CATCH=false               # Flag: are we catching colors?
+    local COLOR=()                  # Array of current catched colors
 
-    declare -A LEN2ANSI
+    declare -A LEN2ANSI             # Color modes (dependent on size of $COLOR): '5' for 8-bit, '2' for RGB
     LEN2ANSI=([1]="5" [3]="2")
 
     for arg in $@; do
         case $arg in
-            ("fg"|"bg")
+            ("fg"|"bg")                                         # Colors: gotta catch 'em all!
                 if $CATCH; then
                     PARAM+=($LEN2ANSI[${#COLOR[@]}] $COLOR)
                     COLOR=()
@@ -100,7 +114,7 @@ function font() {
                 PARAM+=($FONT[$arg])
                 CATCH=true
                 ;;
-            (*)
+            (*)                                                 # All other AECs
                 if $CATCH && [[ $arg =~ '^[0-9]+$' ]]; then
                     COLOR+=($arg)
                 elif $CATCH; then
@@ -115,10 +129,10 @@ function font() {
         esac
     done
 
-    if ! [ -z "$COLOR" ]; then
+    if ! [ -z "$COLOR" ]; then                  # Flush remaining colors
         PARAM+=($LEN2ANSI[${#COLOR[@]}] $COLOR)
     fi
 
-    PARAM=$(IFS=';' ; echo "${^PARAM}")
+    PARAM=$(IFS=';' ; echo "${^PARAM}")         # Final AEC assembly
     echo -n $ESCAPE | sed -r -e "s/§/$PARAM/"
 }
