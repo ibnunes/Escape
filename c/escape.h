@@ -1,14 +1,23 @@
+// Escape Library
+//   Escape the ANSI Escape Code hellhole
+//   escape.h
+//
+// License: GNU-GPL v2.0
+//
+// Igor Nunes, 2023
+// Contribute in https://github.com/ibnunes/Escape
+
 #ifndef ESCAPE_H
 #define ESCAPE_H
 
 #include <stdlib.h>
 
+/* Type definitions */
 #define AEC_T_BUFSIZE   17
+typedef char aec_t[AEC_T_BUFSIZE];      // Maximum possible size for a single AEC
+typedef aec_t aec_list_t[];             // A list of AECs
 
-typedef char aec_t[AEC_T_BUFSIZE];
-typedef aec_t aec_list_t[];
-typedef unsigned short arc_color_t;
-
+/* ANSI Escape Codes */
 #define RESET                     "0"
 #define BOLD                      "1"
 #define FAINT                     "2"
@@ -48,13 +57,6 @@ typedef unsigned short arc_color_t;
 #define FG_MAGENTA                "35"
 #define FG_CYAN                   "36"
 #define FG_WHITE                  "37"
-
-#define FG1(A)                    "38;5;" #A
-#define FG2(A, B)                 "38;5;" #A
-#define FG3(A, B, C)              "38;2;" #A AEC_SEP #B AEC_SEP #C
-#define GET_FG(_1,_2,_3,NAME,...) NAME
-#define FG(...) GET_FG(__VA_ARGS__, FG3, FG2, FG1)(__VA_ARGS__)
-
 #define FG_DEFAULT                "39"
 #define BG_BLACK                  "40"
 #define BG_RED                    "41"
@@ -64,13 +66,6 @@ typedef unsigned short arc_color_t;
 #define BG_MAGENTA                "45"
 #define BG_CYAN                   "46"
 #define BG_WHITE                  "47"
-
-#define BG1(A)                    "48;5;" #A
-#define BG2(A, B)                 "48;5;" #A
-#define BG3(A, B, C)              "48;2;" #A ";" #B ";" #C
-#define GET_BG(_1,_2,_3,NAME,...) NAME
-#define BG(...) GET_BG(__VA_ARGS__, BG3, BG2, BG1)(__VA_ARGS__)
-
 #define BG_DEFAULT                "49"
 #define FRAME                     "51"
 #define ENCIRCLE                  "52"
@@ -101,14 +96,32 @@ typedef unsigned short arc_color_t;
 #define BG_BRIGHT_CYAN            "106"
 #define BG_BRIGHT_WHITE           "107"
 
+/* ANSI Colors */
+// Foreground
+#define FG1(A)                    "38;5;" #A
+#define FG2(A, B)                 "38;5;" #A
+#define FG3(A, B, C)              "38;2;" #A AEC_SEP #B AEC_SEP #C
+#define GET_FG(_1,_2,_3,NAME,...) NAME
+#define FG(...) GET_FG(__VA_ARGS__, FG3, FG2, FG1)(__VA_ARGS__)
+
+// Background
+#define BG1(A)                    "48;5;" #A
+#define BG2(A, B)                 "48;5;" #A
+#define BG3(A, B, C)              "48;2;" #A AEC_SEP #B AEC_SEP #C
+#define GET_BG(_1,_2,_3,NAME,...) NAME
+#define BG(...) GET_BG(__VA_ARGS__, BG3, BG2, BG1)(__VA_ARGS__)
+
+/* AEC formatting */
 #define AEC_FMT     "\033[%sm"
 #define AEC_SEP     ";"
 
+/* Functions and aliases */
 const char *_ansi_escape(size_t, aec_list_t);
 
 #define ansi_escape(...) \
     _ansi_escape(sizeof ((aec_t []){ __VA_ARGS__ }) / sizeof(aec_t), (aec_t []){ __VA_ARGS__ })
 
+// TODO: review the practicality of keeping this behind a definition
 #ifdef __FONT_AS_ANSI_ESCAPE__
 #define font        ansi_escape
 #define nofont      font(RESET)
