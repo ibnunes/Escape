@@ -1,4 +1,4 @@
-# Escape the ANSI Escape Code hellhole
+# Escape the ANSI Escape Code hell
 
 This project aims to provide small, easily mantainable "libraries" allowing developers to add some flair to their CLI apps through ANSI Escape Codes (AEC) without the need to manually manage those codes.
 
@@ -6,21 +6,21 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
 
 **Not** in alphabetical order **nor** by preference:
 
-  - [ ] **[WIP]** sh &mdash; command language:
-    - [X] zsh
-    - [ ] Bash
   - [X] C (standard: ≥C99)
   - [X] C++ (standard: ≥C++20)
   - [X] C#
+  - [X] Delphi (Object Pascal)
   - [X] Python 3
   - [X] OCaml
   - [X] Pascal
-  - [X] Delphi (Object Pascal)
+  - [ ] **[WIP]** sh &mdash; command language:
+    - [X] zsh
+    - [ ] Bash
+  - [ ] Haskell
   - [ ] Java
   - [ ] Kotlin
-  - [ ] Swift
-  - [ ] Haskell
   - [ ] Rust
+  - [ ] Swift
 
 
 ## The codes
@@ -28,7 +28,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
 The ANSI Escape Codes used can be found in [AEC.md](AEC.md).
 
 
-## Examples
+## Usage examples
 
 Expected output:
 
@@ -162,7 +162,7 @@ The software is provided without warranty and as is under the [GNU General Publi
 
 **Notice!** This section can be expanded without prior notice.
 
-  - [ ] **[WIP]** Add fundamental function to apply AECs to the languages in the list.
+  - [ ] **[WIP]** Add fundamental function to apply AECs to the languages in the initial list.
   - [ ] Add support to interpolated AECs.
   - [ ] Add support to more CSIs (Control Sequence Introducers).
 
@@ -177,4 +177,11 @@ These are the current guidelines for contribution:
   2. All [AEC descriptors](AEC.md) must be the same across supported languages as long as it is feasible or possible.
   3. Each supported language must have at least one dedicated branch.
   4. The branch `dev` is to have the current status of all supported languages.
-  5. Changes to be merged to `main` are to be done exclusively through Pull Requests.
+  5. Current working changes are to be merged into `dev` though Pull Requests[^1].
+  6. Changes to be merged to `main` are to be done exclusively through Pull Requests[^2]
+
+
+
+[^1]: Except for Collaborators and the Owner.
+
+[^2]: Except the Owner in exceptional circumstances to be explicitly provided in the merge message.
