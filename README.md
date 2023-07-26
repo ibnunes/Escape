@@ -151,6 +151,27 @@ begin
 end.
 ```
 
+### C#
+```csharp
+using Escape;
+
+public static void Main() {
+  //With formatted strings
+  Console.WriteLine($"{AecEscape.Escape(Aec.Bold, Aec.FgRed)}Fatality!{AecEscape.Escape(Aec.Reset)}");
+  Console.WriteLine($"And here is a {AecEscape.Escape(Aec.Italic, Aec.Fg, 69)}Color Test, Standard{AecEscape.Escape(Aec.Reset)}.");
+
+  //And with the string.Format method
+  Console.WriteLine(
+      string.Format(
+          "{1}Color Test, RGB{0}, and also {2}Color Test, RGB{0}",
+          AecEscape.Escape(Aec.Reset),
+          AecEscape.Escape(Aec.Underline, Aec.Italic, Aec.Bg, 100, 50, 9),
+          AecEscape.Escape(Aec.Underline, Aec.Italic, Aec.Fg, 9, 100, 50)
+      )
+  );
+}
+```
+
 
 
 ## License
