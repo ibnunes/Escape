@@ -1,7 +1,23 @@
+(* Escape library
+ * Escape the ANSI Escape Code hellhole
+ *
+ *    License: GNU-GPL v2.0
+ *
+ *    Igor Nunes, 2023
+ *    Contribute in https://github.com/ibnunes/Escape
+ *
+ * Compiled and tested with Free Pascal Compiler, version 3.2.2
+ *)
+
 {$mode objfpc}
 unit escape;
 
 interface
+
+// This is not an enumeration since the algorithm depends on the difference
+// between string and integer to understand when it is reading an ANSI code
+// or a color.
+// This might change in the future. Feel free to contribute as well :)
 
 const reset                     : string = '0';
 const bold                      : string = '1';
@@ -83,6 +99,13 @@ const bg_bright_magenta         : string = '105';
 const bg_bright_cyan            : string = '106';
 const bg_bright_white           : string = '107';
 
+(* Ansifies a string with the given codes, final reset included.
+ * Parameters:
+ *    - codes       : array of const    -> Sequence of ANSI codes.
+ *    - msg         : string            -> String to ansify.
+ * Returns:
+ *      Ansified string.
+ *)
 function ansify(codes : array of const; const msg : string) : string;
 
 
@@ -93,6 +116,7 @@ const ansi_begin     : string = #27'[';
 const ansi_end       : string = 'm';
 const ansi_separator : char   = ';';
 
+// Assembles the ANSI Escape Code in the format "ESC[<codes...>m"
 function codify(codes : array of const) : string;
 const
     COLOR_MODE : array[1..3] of string = ('5', '5', '2');
@@ -103,6 +127,7 @@ var _color : array[1..3] of byte;
     _param : string  = '';
     i      : word;
 
+    // Makes string with colors separated by ';'
     function color_to_string(const color : array of byte) : string;
     var c : byte;
     begin
@@ -112,6 +137,7 @@ var _color : array[1..3] of byte;
         Delete(color_to_string, Length(color_to_string), 1);
     end;
 
+    // Flushes the array of colors into the _param string
     procedure flush_color;
     begin
         _param += COLOR_MODE[_clind-1] + ansi_separator + color_to_string(_color[1.._clind-1]) + ansi_separator;
@@ -121,6 +147,7 @@ var _color : array[1..3] of byte;
 begin
     for i := 0 to High(codes) do
         case codes[i].vType of
+            // ANSI Code
             vtString:
                 case codes[i].vString^ of
                     '38', '48': begin
@@ -136,19 +163,25 @@ begin
                     _param += codes[i].vString^ + ansi_separator;
                 end;
                 end;
+
+            // Color
             vtInteger:
                 if _catch then begin
                     _color[_clind] := codes[i].vInteger;
                     Inc(_clind);
                 end;
+
+        // ¯\_(ツ)_/¯
         else
             continue;
         end;
-    if _catch then flush_color;
+
+    if _catch then flush_color;                 // Flush remaining colors
     Delete(_param, Length(_param), 1);
     codify := ansi_begin + _param + ansi_end;
 end;
 
+// Makes the final string "ESC[<codes...>m<msg>ESC[0m"
 function ansify(codes : array of const; const msg : string) : string;
 begin
     ansify := codify(codes) + msg + codify([reset]);

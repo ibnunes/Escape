@@ -1,3 +1,14 @@
+(* Escape library
+ * Escape the ANSI Escape Code hellhole
+ *
+ *    License: GNU-GPL v2.0
+ *
+ *    Igor Nunes, 2023
+ *    Contribute in https://github.com/ibnunes/Escape
+ *
+ * Compiled and tested with Free Pascal Compiler, version 3.2.2
+ *)
+
 {$mode objfpc}
 unit escape;
 
@@ -5,59 +16,67 @@ interface
 uses classes, sysutils;
 
 type
+    // Color mode:  Standard = 5, RGB = 2
     TAnsiColorEnum = (AnsiColorRGB = 2, AnsiColorStd = 5);
 
+    // Color, dependent by mode
     TAnsiColorRec = record
         case mode : TAnsiColorEnum of
             AnsiColorStd: (color : byte);
             AnsiColorRGB: (r, g, b : byte);
     end;
 
+    // Any ANSI Code must implement this interface
     IAnsiCode = interface['{eeb511e3-0dbe-4fec-a72f-473f8bf8a8de}']
         function AsString : string;
-        function AsByte : byte;
-        function WithColor(const color : byte) : IAnsiCode; overload;
+        function AsByte   : byte;
+        function WithColor(const color : byte)   : IAnsiCode; overload;
         function WithColor(const r, g, b : byte) : IAnsiCode; overload;
     end;
 
+    // Dedicated interface to build color codes on the spot with automatic resource management
     IAnsiColor = interface['{a9f9f329-e69f-436c-b17f-ee0b962c1486}']
-        function AsString : string;
+        function AsString  : string;
         function ColorMode : TAnsiColorEnum;
-        function AsColor : TAnsiColorRec;
+        function AsColor   : TAnsiColorRec;
     end;
 
+    // Represents an ANSI Color
     TAnsiColor = class(TInterfacedObject, IAnsiColor)
     private
         vString : string;
         vColor  : TAnsiColorRec;
     public
-        constructor Create(const color : byte); overload;
+        constructor Create(const color : byte);   overload;
         constructor Create(const r, g, b : byte); overload;
-        class function New(const color : byte) : IAnsiColor; overload;
+        class function New(const color : byte)   : IAnsiColor; overload;
         class function New(const r, g, b : byte) : IAnsiColor; overload;
-        function AsString : string;
+        function AsString  : string;
         function ColorMode : TAnsiColorEnum;
-        function AsColor : TAnsiColorRec;
+        function AsColor   : TAnsiColorRec;
     end;
 
-
+    // Represents an ANSI Code
     TAnsiCode = class(TInterfacedObject, IAnsiCode)
     private
-        vCode   : byte;
-        vString : string;
+        vCode     : byte;
+        vString   : string;
         vHasColor : boolean;
         function WithCode(const code : byte) : IAnsiCode;
     public
         constructor Create(const code : byte);
-        class function New(const code : byte) : IAnsiCode;
-        function WithColor(const color : byte) : IAnsiCode; overload;
+        class function New(const code : byte)    : IAnsiCode;
+        function WithColor(const color : byte)   : IAnsiCode; overload;
         function WithColor(const r, g, b : byte) : IAnsiCode; overload;
         function AsString : string;
-        function AsByte : byte;
+        function AsByte   : byte;
     end;
 
 
-
+// This is not an enumeration since the algorithm uses the classes
+// previously defined.
+// This might change in the future. Feel free to contribute as well :)
+// Currently considered options for improvement: TCollection, TList.
 
 var RESET                       : IAnsiCode;
     BOLD                        : IAnsiCode;
@@ -137,41 +156,45 @@ var RESET                       : IAnsiCode;
     BG_BRIGHT_CYAN              : IAnsiCode;
     BG_BRIGHT_WHITE             : IAnsiCode;
 
+// Functions to make a TAnsiCode from desired colors:
 function FG(const color : byte)   : IAnsiCode; overload;
 function FG(const r, g, b : byte) : IAnsiCode; overload;
 function BG(const color : byte)   : IAnsiCode; overload;
 function BG(const r, g, b : byte) : IAnsiCode; overload;
 
+// ANSI Escape Codes builders:
 function Codify(const codes : array of IAnsiCode) : string;
 function Ansify(const codes : array of IAnsiCode; const msg : string) : string;
 
 
 implementation
-const
+
+
+const   // Global constants
     ANSI_SEPARATOR : char   = ';';
     ANSI_BEGIN     : string = #27'[';
     ANSI_END       : char   = 'm';
-    VALID_ANSI_COLOR_CODES : set of byte = [38, 48];
+    VALID_ANSI_COLOR_CODES : set of byte = [38, 48];    // Only modes which handle colors
 
-var
+var     // Global internal ANSI Codes used to build codes with colors
     _FG : IAnsiCode;
     _BG : IAnsiCode;
 
 
+(* Builds an AEC from the given codes. *)
 function Codify(const codes : array of IAnsiCode) : string;
 var code : IAnsiCode;
 begin
-    // Result := '\x[';     // Only for development purposes
     Result := ANSI_BEGIN;
     for code in codes do begin
         Result += code.AsString;
         Result += ANSI_SEPARATOR;
     end;
-    Delete(Result, Length(Result), 1);
+    Delete(Result, Length(Result), 1);      // Remove trailing ';'
     Result += ANSI_END;
 end;
 
-
+(* Ansifies an entire string with final reset included. *)
 function Ansify(const codes : array of IAnsiCode; const msg : string) : string;
 begin
     Result := Codify(codes) + msg + Codify([RESET]);
@@ -204,7 +227,7 @@ end;
 
 constructor TAnsiCode.Create(const code : byte);
 begin
-    self.vHasColor := code in VALID_ANSI_COLOR_CODES;
+    self.vHasColor := code in VALID_ANSI_COLOR_CODES;   // To control the use of WithColor()
     self.WithCode(code);
 end;
 
@@ -225,7 +248,7 @@ end;
 
 function TAnsiCode.WithColor(const color : byte) : IAnsiCode; overload;
 begin
-    if self.vHasColor then
+    if self.vHasColor then              // Only codes 38 and 48 handle color
         with TAnsiColor.New(color) do
             self.vString := IntToStr(self.vCode) + ANSI_SEPARATOR + AsString;
     Result := self;
@@ -234,7 +257,7 @@ end;
 
 function TAnsiCode.WithColor(const r, g, b : byte) : IAnsiCode; overload;
 begin
-    if self.vHasColor then
+    if self.vHasColor then              // Only codes 38 and 48 handle color
         with TAnsiColor.New(r, g, b) do
             self.vString := IntToStr(self.vCode) + ANSI_SEPARATOR + AsString;
     Result := self;
@@ -304,6 +327,11 @@ end;
 
 
 initialization
+
+// Globally available objects to Ansify strings.
+// NOTE: These objects can be manipulated by the program which imports
+// this module, which is not desired.
+
 RESET                       := TAnsiCode.New(0);
 BOLD                        := TAnsiCode.New(1);
 FAINT                       := TAnsiCode.New(2);
@@ -387,6 +415,6 @@ _BG := TAnsiCode.New(48);
 
 
 finalization
-
+// void for now
 
 end.
