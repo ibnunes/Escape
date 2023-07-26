@@ -25,7 +25,7 @@ public static class AecEscape {
 
         foreach (var arg in args) {
             var argType = arg.GetType();
-            if (argType != typeof(string) && argType != typeof(Aec))
+            if (argType != typeof(string) && argType != typeof(Aec) && argType != typeof(int))
                 continue;
 
             if (argType == typeof(Aec) && ((Aec)arg == Aec.Bg || (Aec)arg == Aec.Fg)) {
