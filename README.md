@@ -157,7 +157,7 @@ using Escape;
 
 public static void Main() {
   //With formatted strings
-  Console.WriteLine($"{AecEscape.Escape(Aec.Bold, Aec.FgRed)}Fatality!{AecEscape.Escape(Aec.Reset)}");
+  Console.WriteLine($"{AecEscape.Escape(Aec.Bold, Aec.FgRed)}Fatality!{AecEscape.Escape(Aec.Reset)} An error has not occurred! :(");
   Console.WriteLine($"And here is a {AecEscape.Escape(Aec.Italic, Aec.Fg, 69)}Color Test, Standard{AecEscape.Escape(Aec.Reset)}.");
 
   //And with the string.Format method
