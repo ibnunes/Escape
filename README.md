@@ -9,13 +9,13 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
   - [ ] **[WIP]** sh &mdash; command language:
     - [X] zsh
     - [ ] Bash
-  - [X] C
-  - [X] C++20
+  - [X] C (standard: ≥C99)
+  - [X] C++ (standard: ≥C++20)
+  - [X] C#
   - [X] Python 3
   - [X] OCaml
   - [X] Pascal
   - [X] Delphi (Object Pascal)
-  - [ ] **[WIP]** C#
   - [ ] Java
   - [ ] Kotlin
   - [ ] Swift
