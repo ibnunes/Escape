@@ -124,3 +124,17 @@ dmypy.json
 .pyre/
 
 .vscode/
+
+csharp/Escape/Escape/obj/
+csharp/Escape/.idea/
+csharp/Escape/Escape/bin/
+
+*.o
+*.ppu
+*.bin
+
+playground/
+
+*.cmi
+*.cmo
+*.cmx
