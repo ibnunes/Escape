@@ -1,3 +1,12 @@
+// Escape Library
+//   Escape the ANSI Escape Code hellhole
+//   escape.cpp
+//
+// License: GNU-GPL v2.0
+//
+// Igor Nunes, 2023
+// Contribute in https://github.com/ibnunes/Escape
+
 #include "escape.hpp"
 using namespace std;
 
@@ -56,6 +65,7 @@ template<unsigned L, unsigned long... N>
 constexpr TAnsify<L, N...>::TAnsify(const char (&S)[L + 1]) noexcept {
     auto ptr = buf;
     for (auto s = begin; *s != '\0'; s++) *ptr++ = *s;
+    // Lambda inspired by: https://stackoverflow.com/a/60136761
     ([&] {
         const char *s = Stringify<N>.c_str();
         for (; *s != '\0'; s++) *ptr++ = *s;
@@ -69,6 +79,25 @@ constexpr TAnsify<L, N...>::TAnsify(const char (&S)[L + 1]) noexcept {
     }
     *++ptr = '\0';
 }
+
+
+/** FAQ: How do colors work?
+ *
+ *  TStringify receives an unsigned long which is encoded with the desired colors by octects.
+ *  Considering each octet in hexadecimal format, the unsigned int is formated as follows:
+ *
+ *      BB.GG.RR.MM.CC
+ *
+ *  Where:
+ *      CC      -> ANSI Escape Code (foreground = 0x26, background = 0x30)
+ *      MM      -> Color mode (8-bit = 0x05, RGB = 0x02)
+ *      RR  --+--> case CC = 0x05:   8-bit color
+ *            \--> case CC = 0x02:   Red channel
+ *      GG      -> Blue channel
+ *      BB      -> Blue channel
+ *
+ *  The 3 remaining octets are not used.
+ */
 
 template<unsigned long X, unsigned long C>
 constexpr TColorify<X, C>::TColorify() noexcept {

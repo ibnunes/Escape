@@ -1,3 +1,12 @@
+// Escape Library
+//   Escape the ANSI Escape Code hellhole
+//   escape.hpp
+//
+// License: GNU-GPL v2.0
+//
+// Igor Nunes, 2023
+// Contribute in https://github.com/ibnunes/Escape
+
 #ifndef ESCAPE_H
 #define ESCAPE_H
 
@@ -6,29 +15,14 @@
 
 using namespace std;
 
-
-// Reverse wrapper, thanks to:
-// https://stackoverflow.com/a/28139075/20566555
-
-namespace VecUtils {
-    template<typename T>
-    struct reversion_wrapper { T& iterable; };
-
-    template<typename T>
-    constexpr auto begin(reversion_wrapper<T> w) { return std::rbegin(w.iterable); }
-
-    template<typename T>
-    constexpr auto end(reversion_wrapper<T> w) { return std::rend(w.iterable); }
-
-    template<typename T>
-    constexpr reversion_wrapper<T> reverse(T&& iterable) { return { iterable }; }
-}
-
-
-// Compile-time int to string, adapted from:
-// https://stackoverflow.com/a/62596471/20566555
-
+/**
+ * Offers the tools to more easily use ANSI Escape Codes.
+ */
 namespace Ansi {
+
+/**
+ * Readable descriptors and their corresponding ANSI Escape Codes (Control Sequence Introducers)
+ */
 enum Code {
     RESET                       = 0,
     BOLD                        = 1,
@@ -69,7 +63,7 @@ enum Code {
     FG_MAGENTA                  = 35,
     FG_CYAN                     = 36,
     FG_WHITE                    = 37,
-    FG_CODE_ONLY                = 38,
+    FG_CODE_ONLY                = 38,       // To be used exclusively by `FG` templates
     FG_DEFAULT                  = 39,
     BG_BLACK                    = 40,
     BG_RED                      = 41,
@@ -79,7 +73,7 @@ enum Code {
     BG_MAGENTA                  = 45,
     BG_CYAN                     = 46,
     BG_WHITE                    = 47,
-    BG_CODE_ONLY                = 48,
+    BG_CODE_ONLY                = 48,       // To be used exclusively by `BG` templates
     BG_DEFAULT                  = 49,
     FRAME                       = 51,
     ENCIRCLE                    = 52,
@@ -111,14 +105,25 @@ enum Code {
     G_BRIGHT_WHITE              = 107
 };
 
+/**
+ * Collection of utilities specifically designed for the purpose of building ANSI Escape Codes.
+ */
 namespace Utils {
 
+/**
+ * Compile-time int to string casting.
+ *
+ *   @param N    Unsigned int encoded by TAnsify or TColorify.
+ *
+ * @note Adapted from: https://stackoverflow.com/a/62596471/20566555
+ */
 template<unsigned long N>
 class TStringify {
     constexpr static auto countdigits(unsigned long v) noexcept;
     constexpr static bool isRGB() noexcept { return quad[3] == 2; }
     constexpr static auto buflen() noexcept;
 
+    /* Bytes encoded by `TColorify` and `TAnsify` are decoded and saved in `quad` */
     static constexpr unsigned long quad[5] = {
         (N & 0xFF00000000) >> 32,       // Color: channel B
         (N & 0x00FF000000) >> 24,       // Color: channel G
@@ -129,10 +134,18 @@ class TStringify {
     char buf[buflen()] = {};
 
 public:
+    /* Converts encoded unsigned long to string. */
     constexpr TStringify() noexcept;
+
     constexpr operator const char *() const { return buf; }
+
+    /* Gets constant pointer to C-style string */
     constexpr const char* c_str() const { return buf; }
+
+    /* Get single character at index `i`, no out-of-bounds check done. */
     constexpr const char at(int i) const { return buf[i]; }
+
+    /* Returns the internal buffer length. Might not be the actual string length. */
     constexpr auto size() const { return buflen(); }
 };
 
@@ -140,29 +153,54 @@ template<unsigned long N>
 constexpr TStringify<N> Stringify;
 
 
-// Lambda inspired by:
-// https://stackoverflow.com/a/60136761
-
+/**
+ * Builds either a complete Ansified string, or only the string version of a collection of codes.
+ *
+ *   @param L       Length of the string to be ansified (default = 0).
+ *   @param N...    ANSI codes to apply.
+ */
 template<unsigned L = 0, unsigned long... N>
 class TAnsify {
     constexpr static auto buflen() noexcept { return L + 7 + 20 * sizeof...(N); }
 
-    const char *begin = "\033[";           // size = 5
-    const char *end   = "m";                // size = 1
-    const char *reset = "\033[0m";         // size = 7
+    const char *begin  = "\033[";       // size = 5
+    const char *end    = "m";           // size = 1
+    const char *reset  = "\033[0m";     // size = 7
     char buf[buflen()] = {};
 
 public:
+    /** Builds either a complete Ansified string, or only the string version of a collection of codes.
+     * @param S     String to ansify with reset included. If empty, then only the AEC is built without reset.
+     */
     constexpr TAnsify(const char (&S)[L + 1]) noexcept;
+
     constexpr operator const char *() const { return buf; }
+
+    /* Gets constant pointer to C-style string */
     constexpr const char* c_str() const { return buf; }
+
+    /* Get single character at index `i`, no out-of-bounds check done. */
     constexpr const char at(int i) const { return buf[i]; }
+
+    /* Returns the internal buffer length. Might not be the actual string length. */
     constexpr auto size() const { return buflen(); }
 };
 
+/**
+ * Builds the sequence of codes to apply color with ANSI Escape Codes.
+ *
+ *   @param X       ANSI Escape Code (color mode, either 38 or 48).
+ *   @param N...    Colors to apply (range: [0, 255]).
+ */
 template<unsigned long X, unsigned long... N>
 class TColorify {};
 
+/**
+ * Builds the sequence of codes to apply 8-bit color with ANSI Escape Codes.
+ *
+ *   @param X       ANSI Escape Code (color mode, either 38 or 48).
+ *   @param C       8-bit color to apply (range: [0, 255]).
+ */
 template<unsigned long X, unsigned long C>
 class TColorify<X, C> {
     unsigned long vCode;
@@ -171,6 +209,14 @@ public:
     constexpr operator unsigned long () const { return vCode; }
 };
 
+/**
+ * Builds the sequence of codes to apply 8-bit color with ANSI Escape Codes.
+ *
+ *   @param X       ANSI Escape Code (color mode, either 38 or 48).
+ *   @param R       Red channel of RGB color to apply (range: [0, 255]).
+ *   @param G       Green channel of RGB color to apply (range: [0, 255]).
+ *   @param B       Blue channel of RGB color to apply (range: [0, 255]).
+ */
 template<unsigned long X, unsigned long R, unsigned long G, unsigned long B>
 class TColorify<X, R, G, B> {
     unsigned long vCode;
@@ -184,6 +230,7 @@ constexpr TColorify<X, N...> Colorify;
 
 }   // NAMESPACE Ansi::Utils
 
+
 using namespace Utils;
 
 template <unsigned L, unsigned long... N>
@@ -193,38 +240,77 @@ constexpr auto AnsifyS(const char (&msg)[L + 1])
 template <unsigned long... N>
 string Ansify(string s);
 
+
+/**
+ * Collection of templates to interface with Ansi::Utils in order to encode colors for ANSI Escape Codes.
+ */
 namespace Color {
 
-template<unsigned long ... X>
+/**
+ * Encodes a foreground color.
+ *
+ *   @param X...    Sequence of colors to apply (range: [0, 255])
+ */
+template<unsigned long... X>
 class _FG {};
 
-template<unsigned long  color>
+/**
+ * Encodes an 8-bit foreground color.
+ *
+ *   @param color   8-bit color to apply (range: [0, 255])
+ */
+template<unsigned long color>
 class _FG<color> {
     unsigned long vCode = Colorify<Code::FG_CODE_ONLY, color>;
 public:
     constexpr operator unsigned long () const { return vCode; }
 };
 
-template<unsigned long  r, unsigned long  g, unsigned long  b>
+/**
+ * Encodes an RGB foreground color.
+ *
+ *   @param r       Red channel of RGB color to apply (range: [0, 255]).
+ *   @param g       Green channel of RGB color to apply (range: [0, 255]).
+ *   @param b       Blue channel of RGB color to apply (range: [0, 255]).
+ */
+template<unsigned long r, unsigned long g, unsigned long b>
 class _FG<r, g, b> {
     unsigned long vCode = Colorify<Code::FG_CODE_ONLY, r, g, b>;
 public:
     constexpr operator unsigned long () const { return vCode; }
 };
 
-template<unsigned long ... X>
+template<unsigned long... X>
 constexpr _FG<X...> FG;
 
-template<unsigned long ... X>
+
+/**
+ * Encodes a background color.
+ * Parameters:
+ *   @param X...    Sequence of colors to apply (range: [0, 255])
+ */
+template<unsigned long... X>
 class _BG {};
 
-template<unsigned long  color>
+/**
+ * Encodes an 8-bit background color.
+ * Parameters:
+ *   @param color   8-bit color to apply (range: [0, 255])
+ */
+template<unsigned long color>
 class _BG<color> {
     unsigned long vCode = Colorify<Code::BG_CODE_ONLY, color>;
 public:
     constexpr operator unsigned long () const { return vCode; }
 };
 
+/**
+ * Encodes an RGB background color.
+ *
+ *   @param r       Red channel of RGB color to apply (range: [0, 255]).
+ *   @param g       Green channel of RGB color to apply (range: [0, 255]).
+ *   @param b       Blue channel of RGB color to apply (range: [0, 255]).
+ */
 template<unsigned long r, unsigned long g, unsigned long  b>
 class _BG<r, g, b> {
     unsigned long vCode = Colorify<Code::BG_CODE_ONLY, r, g, b>;
@@ -232,7 +318,7 @@ public:
     constexpr operator unsigned long () const { return vCode; }
 };
 
-template<unsigned long ... X>
+template<unsigned long... X>
 constexpr _BG<X...> BG;
 
 }   // === NAMESPACE Ansi::Color ===
