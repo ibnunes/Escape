@@ -25,7 +25,7 @@ This project aims to provide small, easily mantainable "libraries" allowing deve
 
 ## The codes
 
-The ANSI Escape Codes used in Control Sequence Introducers can be found in [AEC.md](AEC.md).
+The ANSI Escape Codes used can be found in [AEC.md](AEC.md).
 
 
 ## Examples

@@ -1,6 +1,28 @@
-# ANSI Escape Codes
+# ANSI Escape Codes (AEC)
+
+**Notice!** This document can be expanded or changed without prior notice.
 
 These are the descriptors to be used across all supported languages when feasible.
+
+
+
+# Control Sequence Introducers (CSI)
+
+Format: `ESC[...`
+
+Using ASCII character `ESC` (Escape):
+
+|  |  |
+| --- | --- |
+| Octal | `\033` |
+| Hexadecimal | `\x1b` |
+| Unicode | `\u001b` |
+
+
+
+## Select Graphic Rendition (SGR)
+
+Format: `ESC[...m`
 
 | Descriptor | AEC |
 | --- | --- |
@@ -83,3 +105,24 @@ These are the descriptors to be used across all supported languages when feasibl
 |  `bg_bright_magenta`         | 105     |
 |  `bg_bright_cyan`            | 106     |
 |  `bg_bright_white`           | 107     |
+
+
+### Color modes
+
+Possible AEC-CSI-SGR codes:
+
+| Descriptor | AEC | Type |
+| --- | --- | --- |
+| `fg` | `38` | Foreground |
+| `bg` | `48` | Background |
+
+Color formats (where `A` is the previously listed ANSI Code):
+
+| Color mode | ANSI Code | Format |
+| --- | --- | --- |
+| 8-bit (from 0 to 255) | `5` | `A;5;C`</br>Where `C` is an 8-bit color code. |
+| RGB                   | `2` | `A;2;R;G;B`</br>Where `R`, `G` and `B` are red, green and blue channels of RGB color. |
+
+Examples:
+  * `38;2;9;100;50` &mdash; foreground color with RGB `#096432` (9, 100, 50);
+  * `48;5;32` &mdash; pre-defined 8-bit background color with code `32`.
